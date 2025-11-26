@@ -1,17 +1,9 @@
-#include <DemoLED.h>
 #include <Screen.h>
-#include <IR.h>
 #include <Nunchuk.h>
 
 #define NUNCHUK_ADDRESS 0x52
 
 void nunchukControl() {
-    if (IRreceived)
-    {
-        ledState = ~ledState;
-        I2C_WriteToAdress(ledState, PCF8564_ADDRESS);
-        IRreceived = false;
-    }
     if (!Nunchuk.getState(NUNCHUK_ADDRESS)) { //refreshen
          return;
     }
@@ -34,9 +26,5 @@ void nunchukControl() {
 
     if (Nunchuk.state.z_button) { //schermpie resetten als er op de Z knop wordt gedrukt
         clearScreen();
-    }
-
-    if (Nunchuk.state.c_button) { //schermpie resetten als er op de Z knop wordt gedrukt
-        sendBit();
     }
 }

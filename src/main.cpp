@@ -1,35 +1,26 @@
-#include <avr/delay.h>
+#include <MinesweeperIR.h>
 #include <NunchuckControl.h>
 #include <SPI.h>
 
-// PD6 --> led
-// PD2 --> sensor
+int main() {
+    init();
 
-void InitializeIO()
-{
-  initializeIRIO();
+    Wire.begin();
+    Minenet.begin(0xA);
+    Nunchuk.begin(NUNCHUK_ADDRESS);
 
-  // INT0 falling edge
-  EICRA |= (1 << ISC01);
-  EICRA &= ~(1 << ISC00);
-  EIMSK |= (1 << INT0);
+    tft.begin();
+    clearScreen();
 
-  sei();
-}
+    while(true) {
+//        _delay_ms(500);
+//        Minenet.send(0x5, 0x00);
 
-int main(void)
-{
-  InitializeIO();
-  init();
-  Wire.begin();
-  Nunchuk.begin(NUNCHUK_ADDRESS);
-  tft.begin();
-  clearScreen();
-  
-  InitializeIO();
-  while(true)
-  {
-    nunchukControl();
-  }
-  return 0;
+//        while (Minenet.available()) {
+//            Serial.println(Minenet.getCommandData());
+//            Serial.println(Minenet.getCommandType());
+//        }
+
+        nunchukControl();
+    }
 }

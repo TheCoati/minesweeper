@@ -1,0 +1,96 @@
+@startuml
+skinparam sequenceMessageAlign center
+skinparam maxMessageSize 250
+skinparam participantBackgroundColor #E6E6FA
+skinparam noteBackgroundColor #FEFECE
+
+participant "Host (Player A)" as Host
+participant "Client (Player B)" as Client
+
+== Phase 1: Host Advertising (Beacon) ==
+note over Host: **State:** Lobby (Advertising)\n**Session:** 0xA (Generated Randomly)\n**Grid:** 8x8
+
+note over Client: **State:** Scanning\nListening for Beacons...
+
+loop Every 1-2 Seconds (Until Joined)
+    Host ->] : **MSG_ADVERTISE** [Addr: Broadcast(0) | Data: Sess(0xA)]
+    note left: "Game 0xA available!"
+end
+
+Client -> Client: **Receive Beacon**\nFound Game: Session 0xA
+
+note over Client: User selects "Join Game A"
+
+Client -> Host: **MSG_JOIN_REQ** [Sess:0xA | Data: ProtocolVer]
+activate Host
+
+Host -> Host: Client found!\n**Stop Advertising.**
+
+Host -> Client: **MSG_WELCOME** [Sess:0xA | Data: GridSize(8)]
+deactivate Host
+
+Client -> Client: **State:** Joined\nLock Session to 0xA
+
+== Phase 2: Map Sync (Setup) ==
+note over Host: Host generates Mine Map.
+
+loop Sync Mines (Reliable ARQ)
+    Host -> Client: **MSG_SYNC_MINE** [Sess:0xA | Data:(X,Y)]
+    Client -> Client: Mark Mine at (X,Y)
+    Client --> Host: **MSG_ACK**
+end
+
+Host -> Client: **MSG_SYNC_DONE** [Sess:0xA]
+Client --> Host: **MSG_ACK**
+
+note over Host: **State:** MY_TURN\n(UI Unlocked)
+note over Client: **State:** WAITING\n(UI Locked)
+
+== Phase 3: Turn-Based Gameplay ==
+
+loop Game Loop
+    group Host Turn
+        Host -> Host: User clicks (1,1)
+        Host -> Host: Update Local Screen.\n**Set State: WAITING**
+
+        Host -> Client: **MSG_MOVE** [Sess:0xA | Data: (1,1)]
+        activate Client
+
+        Client -> Client: 1. Receive (1,1)\n2. Update Screen\n3. **Set State: MY_TURN**
+        note right: Client UI Unlocks.\n"YOUR TURN"
+
+        Client --> Host: **MSG_ACK**
+        deactivate Client
+    end
+
+    |||
+
+    group Client Turn
+        Client -> Client: User clicks (2,2)
+        Client -> Client: Update Local Screen.\n**Set State: WAITING**
+
+        Client -> Host: **MSG_MOVE** [Sess:0xA | Data: (2,2)]
+        activate Host
+
+        Host -> Host: 1. Receive (2,2)\n2. Update Screen\n3. **Set State: MY_TURN**
+        note left: Host UI Unlocks.\n"YOUR TURN"
+
+        Host --> Client: **MSG_ACK**
+        deactivate Host
+    end
+end
+
+== Phase 4: Game Over ==
+
+group Fatal Move
+    note over Host: **State:** MY_TURN
+    Host -> Host: User clicks (3,3) -> **MINE!**
+    Host -> Host: **Display: "YOU LOST"**
+
+    Host -> Client: **MSG_GAME_OVER** [Sess:0xA | Data: Opponent_Won]
+
+    Client -> Client: **Display: "YOU WON"**
+    Client --> Host: **MSG_ACK**
+end
+
+@enduml
