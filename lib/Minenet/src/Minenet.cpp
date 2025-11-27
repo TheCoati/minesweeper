@@ -138,6 +138,7 @@ bool MinenetProtocol::transmit(uint32_t packet) {
 
     TCNT1 = 0;                 // Reset the timer to 0
     OCR1A = HDR_MARK_TIME;     // First interrupt when the duration of HDR_MARK_TIME is reached
+    TIFR1 |= (1 << OCF1A);     // Clear any pending Timer1 Output Compare A flag
     TIMSK1 |= (1 << OCIE1A);   // Enable TX interrupt
 
     carrier_on();
