@@ -1,26 +1,20 @@
-#include <MinesweeperIR.h>
 #include <NunchuckControl.h>
-#include <SPI.h>
+#include <Minenet.h>
+#include <Arduino.h>
 
-int main() {
+void setup() {
     init();
 
-    Wire.begin();
-    Minenet.begin(0xA);
+    Minenet.begin();
     Nunchuk.begin(NUNCHUK_ADDRESS);
 
     tft.begin();
     clearScreen();
+}
 
-    while(true) {
-//        _delay_ms(500);
-//        Minenet.send(0x5, 0x00);
+void loop() {
+    nunchukControl();
 
-//        while (Minenet.available()) {
-//            Serial.println(Minenet.getCommandData());
-//            Serial.println(Minenet.getCommandType());
-//        }
-
-        nunchukControl();
-    }
+    _delay_ms(500);
+    Minenet.send(0x5, 0x01);
 }
