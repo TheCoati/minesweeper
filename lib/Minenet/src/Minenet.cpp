@@ -25,6 +25,7 @@ volatile uint32_t txShift = 0;
 volatile MinenetProtocol::RxState rxState = MinenetProtocol::RX_BURST;
 volatile int8_t rxBits = 0;
 volatile uint32_t rxShift = 0;
+volatile bool rxAvailable = false;
 
 /**
  * Attach the carrier signal to the timer output pin
@@ -40,38 +41,7 @@ inline void carrier_on()  {
  */
 inline void carrier_off() {
     TCCR0A &= ~(1 << COM0A0); // Disconnect from PWM
-    PORTD &= ~(1 << PD6);     // Make sure pin is low
-}
-
-/**
- * Build the pack to transmit
- * @param opCode The opCode of the packet
- * @param payload The payload of the packet
- * @param seq The sequence number
- * @return The packet as a 32-bit integer
- */
-inline uint32_t encodePacket(uint8_t clientId, uint8_t sessionId, uint8_t opCode, uint8_t payload, uint8_t seq) {
-    // | Version | Sequence | Client ID | Session ID | Op Code | Payload | CRC    |
-    // | 4 bits  | 1 bit    | 3 bits    | 4 bits     | 4 bits  | 8 bits  | 8 bits |
-
-    // 0001 0 000 0000 0101 00000001 00010110
-
-    uint8_t byte1 = ((VERSION & 0x0F) << 4) | ((seq & 0x01) << 3) | (clientId & 0x07);
-    uint8_t byte2 = ((sessionId & 0x0F) << 4) | (opCode & 0x0F);
-    uint8_t crc = (byte1 + byte2 + payload) & 0xFF;
-
-    return ((uint32_t) byte1 << 24) | ((uint32_t) byte2 << 16) | ((uint32_t) payload << 8) | crc;
-}
-
-/**
- * Decode the packet received
- * @param packet The packet to decode
- */
-inline void decodePacket(uint32_t packet) {
-    // | Version | Sequence | Client ID | Session ID | Op Code | Payload | CRC    |
-    // | 4 bits  | 1 bit    | 3 bits    | 4 bits     | 4 bits  | 8 bits  | 8 bits |
-
-    // Todo
+    PORTD &= ~(1 << PD6);     // Make sure the pin is low
 }
 
 /**
@@ -79,9 +49,6 @@ inline void decodePacket(uint32_t packet) {
  * @param session_id The initial session number
  */
 void MinenetProtocol::begin() {
-    clientId_ = 0;
-    sessionId_ = 0;
-
     sei();
 
     // Set RX
@@ -110,24 +77,19 @@ void MinenetProtocol::begin() {
  * @param payload Payload of the packet
  * @return boolean if the packet can be sent
  */
-bool MinenetProtocol::send(uint8_t op, uint8_t payload) {
+bool MinenetProtocol::send(uint8_t clientId, uint8_t sessionId, uint8_t opCode, uint8_t payload) {
     if (txActive) {
         return false;
     }
 
-    uint32_t packet = encodePacket(clientId_, sessionId_, op, payload, txSeq);
+    // | Version | Sequence | Client ID | Session ID | Op Code | Payload | CRC    |
+    // | 4 bits  | 1 bit    | 3 bits    | 4 bits     | 4 bits  | 8 bits  | 8 bits |
 
-    return transmit(packet);
-}
+    uint8_t byte1 = ((VERSION & 0x0F) << 4) | ((txSeq & 0x01) << 3) | (clientId & 0x07);
+    uint8_t byte2 = ((sessionId & 0x0F) << 4) | (opCode & 0x0F);
+    uint8_t crc = (byte1 + byte2 + payload) & 0xFF;
 
-/**
- * Start transmitting the packet over IR
- * @param packet The packet to transmit
- */
-bool MinenetProtocol::transmit(uint32_t packet) {
-    if (txActive) {
-        return false;
-    }
+    uint32_t packet = ((uint32_t) byte1 << 24) | ((uint32_t) byte2 << 16) | ((uint32_t) payload << 8) | crc;
 
     txBits = 32;
     txShift = packet;
@@ -143,6 +105,45 @@ bool MinenetProtocol::transmit(uint32_t packet) {
 
     carrier_on();
     return true;
+}
+
+/**
+ * Decode the packet received
+ */
+MinenetPacket MinenetProtocol::read() {
+    // | Version | Sequence | Client ID | Session ID | Op Code | Payload | CRC    |
+    // | 4 bits  | 1 bit    | 3 bits    | 4 bits     | 4 bits  | 8 bits  | 8 bits |
+
+    MinenetPacket packet {};
+    uint32_t data = rxShift;
+
+    uint8_t byte1 = (data >> 24) & 0xFF;
+    packet.version = (byte1 >> 4) & 0x0F;
+    packet.seq = (byte1 >> 3) & 0x01;
+    packet.clientId = byte1 & 0x07;
+
+    uint8_t byte2 = (data >> 16) & 0xFF;
+    packet.sessionId = (byte2 >> 4) & 0x0F;
+    packet.opCode = byte2 & 0x0F;
+
+    packet.payload = (data >> 8) & 0xFF;
+    packet.crc = data & 0xFF;
+
+    auto calc = (uint8_t) ((byte1 + byte2 + packet.payload) & 0xFF);
+
+    packet.valid = (calc == packet.crc);
+
+    return packet;
+}
+
+
+bool MinenetProtocol::available() {
+    if (rxAvailable) {
+        rxAvailable = false;
+        return true;
+    }
+
+    return false;
 }
 
 /**
@@ -184,7 +185,6 @@ void MinenetProtocol::handleTxTimer() {
             carrier_off();
             TIMSK1 &= ~(1 << OCIE1A); // Disable TX interrupt
             PCIFR  |= (1 << PCIF2);   // Clear interrupt flag before enabling RX again
-
             PCMSK2 |= (1 << PCINT18); // Re-enable RX interrupt
 
             txActive = false;
@@ -197,6 +197,10 @@ void MinenetProtocol::handleTxTimer() {
  * Triggered when data is received on the IR receiver
  */
 void MinenetProtocol::handleRxInterrupt() {
+    if (txActive) {
+        return;
+    }
+
     uint16_t width = TCNT1;
 
     TCNT1 = 0; // Reset the timer to 0
@@ -240,9 +244,11 @@ void MinenetProtocol::handleRxInterrupt() {
             rxBits++;
 
             if (rxBits == 32) {
-                decodePacket(rxShift);
+                rxBits = 0;
+                rxAvailable = true;
                 rxState = RX_BURST;
             }
+
             break;
         default:
             rxState = RX_BURST_SPACE;

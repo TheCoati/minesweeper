@@ -1,20 +1,28 @@
-#include <NunchuckControl.h>
+#include <Adafruit_ILI9341.h>
+#include <Adafruit_GFX.h>
 #include <Minenet.h>
-#include <Arduino.h>
+#include <avr/delay.h>
 
-void setup() {
+#define TFT_DC 9
+#define TFT_CS 10
+
+Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
+
+int main(void) {
     init();
 
-    Minenet.begin();
-    Nunchuk.begin(NUNCHUK_ADDRESS);
-
     tft.begin();
-    clearScreen();
-}
+    tft.fillScreen(ILI9341_BLACK);
 
-void loop() {
-    nunchukControl();
+    Minenet.begin();
 
-    _delay_ms(500);
-    Minenet.send(0x5, 0x01);
+    while (true) {
+        if (Minenet.available()) {
+            MinenetPacket packet = Minenet.read();
+
+            tft.println(packet.payload);
+        }
+
+        _delay_ms(500);
+    }
 }
