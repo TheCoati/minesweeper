@@ -1,5 +1,6 @@
 #include <Adafruit_ILI9341.h>
 #include <Adafruit_GFX.h>
+#include "Minenet.h"
 
 // For the Adafruit shield, these are the default.
 #define TFT_DC 9
@@ -37,9 +38,11 @@ void cursorX(uint8_t x) {
     if (x) {
         tft.fillRect(squaresX += stap, squaresY, 24, 24, ILI9341_BLUE); //move cursor
         tft.fillRect(squaresX - stap, squaresY, 24, 24, ILI9341_RED); //zet vorig vakje weer normaal
+        Minenet.send(0, 0, 0x01, 0x01);
     } else {
         tft.fillRect(squaresX -= stap, squaresY, 24, 24, ILI9341_BLUE); //move cursor
         tft.fillRect(squaresX + stap, squaresY, 24, 24, ILI9341_RED); //zet vorig vakje weer normaal
+        Minenet.send(0, 0, 0x01, 0x02);
     }
 }
 
@@ -47,8 +50,10 @@ void cursorY(uint8_t y) {
     if (y) {
         tft.fillRect(squaresX, squaresY += stap, 24, 24, ILI9341_BLUE); //move cursor
         tft.fillRect(squaresX, squaresY - stap, 24, 24, ILI9341_RED); //zet vorig vakje weer normaal
+        Minenet.send(0, 0, 0x01, 0x03);
     } else {
         tft.fillRect(squaresX, squaresY -= stap, 24, 24, ILI9341_BLUE); //move cursor
         tft.fillRect(squaresX, squaresY + stap, 24, 24, ILI9341_RED); //zet vorig vakje weer normaal
+        Minenet.send(0, 0, 0x01, 0x04);
     }
 }

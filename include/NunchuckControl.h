@@ -1,6 +1,5 @@
 #include <DemoLED.h>
 #include <Screen.h>
-#include <IR.h>
 #include <Nunchuk.h>
 
 #define NUNCHUK_ADDRESS 0x52
@@ -54,7 +53,7 @@ void nunchukControl() {
         tft.fillRect(squaresX, squaresY, 24, 24, ILI9341_BLUE); //cursor
     }
 
-    if (Nunchuk.state.c_button) { //schermpie resetten als er op de Z knop wordt gedrukt
-        sendBit();
-    }
+//    if (Nunchuk.state.c_button) { //schermpie resetten als er op de Z knop wordt gedrukt
+//        sendBit();
+//    }
 }
