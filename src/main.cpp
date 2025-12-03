@@ -24,11 +24,8 @@ int main(void)
   Wire.begin();
   Nunchuk.begin(NUNCHUK_ADDRESS);
   tft.begin();
-  clearScreen();
-  
+  initScreen();
   InitializeIO();
-
-  firstRender();
 
   while(true)
   {

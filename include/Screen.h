@@ -8,32 +8,27 @@
 // Use hardware SPI (on Uno, #13, #12, #11) and the above for CS/DC
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 
-uint8_t dotX = 120; //scherm is 240x320 -> gedeeld door 2 dus 120 en 160 is midden
-uint16_t dotY = 160; //deze moet 16 bits zijn helaas, max waarde komt boven de 255 uit (320).
-
-void clearScreen() {
-    tft.fillScreen(ILI9341_BLACK); //scherm "wipen"
-    dotX = 120; //standaard waardes van de x en y zodat de "cursor" weer vanaf het midden begint
-    dotY = 160;
-    tft.fillCircle(dotX, dotY, 2, ILI9341_WHITE); //witte cursor weer in het midden
-}
-
 uint8_t squaresX = 5; //startwaardes voor de x en y zodat we weten waar het eerste vierkantje moet komen
-uint8_t squaresY = 5;
+uint8_t squaresY = 12;
 
-uint8_t stap = 26; //stapgrootte voor de vierkantjes
+uint8_t stap = 24; //stapgrootte voor de vierkantjes
 
-void firstRender() {
+void gridRender() {
     tft.fillScreen(ILI9341_BLACK); //scherm "wipen"
-    for (uint8_t i = 0; i < 81; ++i) {
-        if (squaresX >= 236)
-        {
-            squaresY += stap; //huidige y en waarde met een stapgrootte van 24 (breedte/hoogte) verhogen zodat er geen overlap is
+    for (uint8_t i = 0; i < 81; i++) { //81 vakjes totaal (9x9)
+        tft.fillRect(squaresX, squaresY, 24, 24, ILI9341_RED); //vierkant renderen
+        squaresX += stap; //huidige x en waarde met een stap verhogen zodat er geen overlap is
+        if ((i+1) % 9 == 0) { //rows van 9 vakjes breed
             squaresX = 5; //x opnieuw resetten
+            squaresY += stap; //huidige y en waarde met een stapgrootte van 24 (breedte/hoogte) verhogen zodat er geen overlap is
         }
-        tft.fillRect(squaresY, squaresX, 24, 24, ILI9341_RED); //eerste vierkantje
-        squaresX += stap; //huidige x en waarde met een stapgrootte van 24 (breedte/hoogte) verhogen zodat er geen overlap is
     }
     squaresX = 5; //cursor reset
-    squaresY = 5;
+    squaresY = 12;
+}
+
+void initScreen() {
+    tft.setRotation(1); //scherm op goede orientatie zetten
+    gridRender();
+    tft.fillRect(squaresX, squaresY, 24, 24, ILI9341_BLUE); //cursor
 }
