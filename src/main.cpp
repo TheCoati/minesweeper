@@ -27,6 +27,9 @@ int main(void)
   clearScreen();
   
   InitializeIO();
+
+  firstRender();
+
   while(true)
   {
     nunchukControl();
