@@ -1,9 +1,4 @@
-#include <DemoLED.h>
-#include <Screen.h>
-#include <IR.h>
-#include <Nunchuk.h>
-
-#define NUNCHUK_ADDRESS 0x52
+#include <NunchuckControl.h>
 
 void nunchukControl() {
     if (IRreceived)
@@ -34,9 +29,5 @@ void nunchukControl() {
 
     if (Nunchuk.state.z_button) { //schermpie resetten als er op de Z knop wordt gedrukt
         clearScreen();
-    }
-
-    if (Nunchuk.state.c_button) { //schermpie resetten als er op de Z knop wordt gedrukt
-        sendBit();
     }
 }
