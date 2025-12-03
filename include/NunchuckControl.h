@@ -25,29 +25,25 @@ void nunchukControl() {
 
     //rechts
     if (!firstinput && Nunchuk.state.joy_x_axis > 168 && squaresX < (stap*8)+5) { //chuk max waarde 254, midden 80 -> (254-80)/80 + 80 = ~168 (50% deadzone) & mag niet van scherm af
-        tft.fillRect(squaresX += stap, squaresY, 24, 24, ILI9341_BLUE); //move cursor
-        tft.fillRect(squaresX - stap, squaresY, 24, 24, ILI9341_RED); //zet vorig vakje weer normaal
+        cursorX(1); //beweeg cursor rechts
         firstinput = 1;
     }
 
     //links
     if (!firstinput && Nunchuk.state.joy_x_axis < 40 && squaresX > 5) { //chuk min waarde 0, midden 80 -> 80/2 = 40 (50% deadzone) & mag niet van scherm af
-        tft.fillRect(squaresX -= stap, squaresY, 24, 24, ILI9341_BLUE); //move cursor
-        tft.fillRect(squaresX + stap, squaresY, 24, 24, ILI9341_RED); //zet vorig vakje weer normaal
+        cursorX(0); //beweeg cursor links
         firstinput = 1;
     }
 
     //boven
     if (!firstinput && Nunchuk.state.joy_y_axis > 168 && squaresY > 12) { //chuk max waarde 254, midden 80 -> (254-80)/80 + 80 = ~168 (50% deadzone) & mag niet van scherm af
-        tft.fillRect(squaresX, squaresY -= stap, 24, 24, ILI9341_BLUE); //move cursor
-        tft.fillRect(squaresX, squaresY + stap, 24, 24, ILI9341_RED); //zet vorig vakje weer normaal
+        cursorY(0); //beweeg cursor boven
         firstinput = 1;
     }
 
     //onder
     if (!firstinput && Nunchuk.state.joy_y_axis < 40 && squaresY < (stap*8)+12) { //chuk min waarde 0, midden 80 -> 80/2 = 40 (50% deadzone) & mag niet van scherm af
-        tft.fillRect(squaresX, squaresY += stap, 24, 24, ILI9341_BLUE); //move cursor
-        tft.fillRect(squaresX, squaresY - stap, 24, 24, ILI9341_RED); //zet vorig vakje weer normaal
+        cursorY(1); //beweeg cursor onder
         firstinput = 1;
     }
 

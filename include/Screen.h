@@ -32,3 +32,23 @@ void initScreen() {
     gridRender();
     tft.fillRect(squaresX, squaresY, 24, 24, ILI9341_BLUE); //cursor
 }
+
+void cursorX(uint8_t x) {
+    if (x) {
+        tft.fillRect(squaresX += stap, squaresY, 24, 24, ILI9341_BLUE); //move cursor
+        tft.fillRect(squaresX - stap, squaresY, 24, 24, ILI9341_RED); //zet vorig vakje weer normaal
+    } else {
+        tft.fillRect(squaresX -= stap, squaresY, 24, 24, ILI9341_BLUE); //move cursor
+        tft.fillRect(squaresX + stap, squaresY, 24, 24, ILI9341_RED); //zet vorig vakje weer normaal
+    }
+}
+
+void cursorY(uint8_t y) {
+    if (y) {
+        tft.fillRect(squaresX, squaresY += stap, 24, 24, ILI9341_BLUE); //move cursor
+        tft.fillRect(squaresX, squaresY - stap, 24, 24, ILI9341_RED); //zet vorig vakje weer normaal
+    } else {
+        tft.fillRect(squaresX, squaresY -= stap, 24, 24, ILI9341_BLUE); //move cursor
+        tft.fillRect(squaresX, squaresY + stap, 24, 24, ILI9341_RED); //zet vorig vakje weer normaal
+    }
+}
