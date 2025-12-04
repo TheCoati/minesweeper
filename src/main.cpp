@@ -26,6 +26,7 @@ int main(void)
   Wire.begin();
   Nunchuk.begin(NUNCHUK_ADDRESS);
   tft.begin();
+  SD.begin(SD_CS, SD_SCK_MHZ(25));
   initScreen();
 //  InitializeIO();
 
