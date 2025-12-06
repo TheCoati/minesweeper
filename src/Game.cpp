@@ -1,5 +1,5 @@
 #include <Game.h>
-
+/*
 uint8_t grid[9][9];
 
 //This number is sent by the protocol on start up
@@ -52,5 +52,51 @@ void appointValues(uint8_t column, uint8_t row) {
           }
         }
     }
+  }
+}
+*/
+
+
+uint8_t grid[41];
+
+uint8_t seedNumber = 98;
+uint8_t mineNumber = 10;
+
+uint8_t fieldNumber = 0;
+uint8_t partNumber = 0;
+
+div_t result;
+
+void fillField(){
+
+  //fill the gridarray with 0's
+  memset(grid, 0, sizeof(grid));
+
+  //Use formula: x = (seedNumber * 4) + 5 % 81
+  for (uint8_t i = 0; i < mineNumber; i++) {
+    seedNumber = (seedNumber * 4) + 5;
+    fieldNumber = seedNumber % 81;
+
+    partNumber = fieldNumber % 2;
+
+    result = div(fieldNumber, 2);
+
+    fieldNumber = result.quot;
+
+    if (partNumber == 0 && grid[fieldNumber] != 0b10010000) {
+      grid[fieldNumber] |= 0b10010000;
+    } else if (partNumber == 1 && grid[fieldNumber] != 0b00001001) {
+      grid[fieldNumber] |= 0b00001001;
+    } else {
+      i--;
+    }
+
+    /*
+When modulo is 1, it's the first halve in the 8-bit number
+Mod = 1
+0b10010000
+Mod = 0
+0b00001001
+*/
   }
 }
