@@ -37,9 +37,37 @@ uint8_t stap = 24; //stapgrootte voor de vierkantjes
 
 uint8_t huidigvakje = 0;
 
+uint8_t levens = 2;
+
 uint8_t vakjes[11]; //met 11 bits kun je 88 vakjes opslaan (we gebruiken hiervan maar 81)
 
-void leegVakje(uint8_t vakje) {
+void drawNumber(int number, int x, int y) {
+    switch (number) {
+    case 0: reader.drawBMP("/open.bmp", tft, x, y); break;
+    case 1: reader.drawBMP("/open_1.bmp", tft, x, y); break;
+    case 2: reader.drawBMP("/open_2.bmp", tft, x, y); break;
+    case 3: reader.drawBMP("/open_3.bmp", tft, x, y); break;
+    case 4: reader.drawBMP("/open_4.bmp", tft, x, y); break;
+    case 5: reader.drawBMP("/open_5.bmp", tft, x, y); break;
+    case 6: reader.drawBMP("/open_6.bmp", tft, x, y); break;
+    case 7: reader.drawBMP("/open_7.bmp", tft, x, y); break;
+    case 8: reader.drawBMP("/open_8.bmp", tft, x, y); break;
+    case 9: reader.drawBMP("/mine.bmp",   tft, x, y); break;
+    default: break;
+    }
+}
+
+void checkForMine() {
+    if (getFieldValue(huidigvakje) == 9) {
+        levens--;
+        drawNumber(levens, 296, 0);
+    }
+    if (levens == 0) {
+        drawNumber(9, 296, 0);
+    }
+}
+
+void onthulVakje(uint8_t vakje) { //onthul permanent een vakje
     vakjes[vakje/8] |=  1 << (vakje % 8);  // zet bit
 }
 
@@ -59,6 +87,7 @@ void gridRender() {
     }
     squaresX = 4; //cursor reset
     squaresY = 4;
+    fillField(seedNumber);
 }
 
 void initScreen() {
@@ -70,6 +99,7 @@ void initScreen() {
     gridRender();
     //tft.fillRect(squaresX, squaresY, 24, 24, ILI9341_BLUE); //cursor
     reader.drawBMP("/selected.bmp", tft, squaresX, squaresY);
+    reader.drawBMP("/open_2.bmp", tft, 296, 0);
 }
 
 void cursorX(uint8_t x) {
@@ -79,7 +109,8 @@ void cursorX(uint8_t x) {
         if (!zPressed && !getVakje(huidigvakje - 1)) {
             reader.drawBMP("/slot.bmp", tft, squaresX - stap, squaresY);
         } else {
-            reader.drawBMP("/open.bmp", tft, squaresX - stap, squaresY);
+            drawNumber(getFieldValue(huidigvakje - 1), squaresX - stap, squaresY);
+            //reader.drawBMP("/open.bmp", tft, squaresX - stap, squaresY);
             zPressed = 0;
         }
         // Minenet.send(0, 0, 0x01, 0x01);
@@ -89,7 +120,8 @@ void cursorX(uint8_t x) {
         if (!zPressed && !getVakje(huidigvakje + 1)) {
             reader.drawBMP("/slot.bmp", tft, squaresX + stap, squaresY);
         } else {
-            reader.drawBMP("/open.bmp", tft, squaresX + stap, squaresY);
+            drawNumber(getFieldValue(huidigvakje + 1), squaresX + stap, squaresY);
+            //reader.drawBMP("/open.bmp", tft, squaresX + stap, squaresY);
             zPressed = 0;
         }
         // Minenet.send(0, 0, 0x01, 0x02);
@@ -103,7 +135,8 @@ void cursorY(uint8_t y) {
         if (!zPressed && !getVakje(huidigvakje - 9)) {
             reader.drawBMP("/slot.bmp", tft, squaresX, squaresY - stap);
         } else {
-            reader.drawBMP("/open.bmp", tft, squaresX, squaresY - stap);
+            drawNumber(getFieldValue(huidigvakje - 9), squaresX, squaresY - stap);
+            //reader.drawBMP("/open.bmp", tft, squaresX, squaresY - stap);
             zPressed = 0;
         }
         // Minenet.send(0, 0, 0x01, 0x03);
@@ -113,7 +146,8 @@ void cursorY(uint8_t y) {
         if (!zPressed && !getVakje(huidigvakje + 9)) {
             reader.drawBMP("/slot.bmp", tft, squaresX, squaresY + stap);
         } else {
-            reader.drawBMP("/open.bmp", tft, squaresX, squaresY + stap);
+            drawNumber(getFieldValue(huidigvakje + 9), squaresX, squaresY + stap);
+            //reader.drawBMP("/open.bmp", tft, squaresX, squaresY + stap);
             zPressed = 0;
         }
         // Minenet.send(0, 0, 0x01, 0x04);

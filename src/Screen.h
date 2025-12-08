@@ -4,6 +4,7 @@
 #include <Adafruit_ILI9341.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_Imagereader.h>
+#include "Game.h"
 
 // For the Adafruit shield, these are the default.
 #define SD_CS 4
@@ -19,8 +20,9 @@ extern Adafruit_ILI9341 tft;
 extern SdFat                SD;
 
 void clearScreen();
-void leegVakje(uint8_t vakje);
+void onthulVakje(uint8_t vakje);
 uint8_t getVakje(uint8_t vakje);
+void checkForMine();
 void gridRender();
 void initScreen();
 void cursorX(uint8_t x);

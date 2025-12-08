@@ -6,7 +6,7 @@
 extern uint8_t grid[41];
 extern uint8_t seedNumber;
 
-void fillField();
+void fillField(uint8_t seed);
 uint8_t getFieldValue(uint8_t index);
 void openField(uint8_t index);
 void openEmptyNeighbors(uint8_t index);

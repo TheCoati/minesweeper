@@ -3,7 +3,7 @@
 uint8_t grid[41];
 uint8_t isVisibleGrid[11];
 
-uint8_t seedNumber = 98;
+uint8_t seedNumber = 60; //98 (was ie mee aangeleverd. ik laat m hier ff staan voor de zekerheid, mvg mikaas)
 uint8_t mineNumber = 10;
 
 // muteert 8 bit unsigned integer
