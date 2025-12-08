@@ -24,15 +24,16 @@
 // Use hardware SPI (on Uno, #13, #12, #11) and the above for CS/DC
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 
+SdFat                SD;         // SD card filesystem
+Adafruit_ImageReader reader(SD); // Image-reader object, pass in SD filesys
+
+
 uint8_t squaresX = 4; //startwaardes voor de x en y zodat we weten waar het eerste vierkantje moet komen
 uint8_t squaresY = 4;
 
 uint8_t zPressed = 0; //of de Z knop ingedrukt is
 
 uint8_t stap = 24; //stapgrootte voor de vierkantjes
-
-SdFat                SD;         // SD card filesystem
-Adafruit_ImageReader reader(SD); // Image-reader object, pass in SD filesys
 
 uint8_t huidigvakje = 0;
 

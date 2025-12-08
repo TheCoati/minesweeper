@@ -16,6 +16,7 @@ extern uint8_t stap; //stapgrootte voor de vierkantjes
 extern uint8_t huidigvakje;
 
 extern Adafruit_ILI9341 tft;
+extern SdFat                SD;
 
 void clearScreen();
 void leegVakje(uint8_t vakje);
