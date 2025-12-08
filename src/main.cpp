@@ -1,10 +1,12 @@
+#include <Adafruit_ILI9341.h>
+#include <Adafruit_GFX.h>
+#include <Minenet.h>
 #include <avr/delay.h>
-#include <NunchuckControl.h>
-#include <SPI.h>
 
-// PD6 --> led
-// PD2 --> sensor
+#define TFT_DC 9
+#define TFT_CS 10
 
+<<<<<<< HEAD
 int main(void)
 {
   init();
@@ -19,3 +21,25 @@ int main(void)
   }
   return 0;
 }
+=======
+Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
+
+int main(void) {
+    init();
+
+    tft.begin();
+    tft.fillScreen(ILI9341_BLACK);
+
+    Minenet.begin();
+
+    while (true) {
+        if (Minenet.available()) {
+            MinenetPacket packet = Minenet.read();
+
+            tft.println(packet.payload);
+        }
+
+        _delay_ms(500);
+    }
+}
+>>>>>>> feature/protocol

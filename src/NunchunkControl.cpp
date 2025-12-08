@@ -1,12 +1,13 @@
+<<<<<<< HEAD:src/NunchunkControl.cpp
 #include <NunchuckControl.h>
+=======
+#include <Screen.h>
+#include <Nunchuk.h>
+
+#define NUNCHUK_ADDRESS 0x52
+>>>>>>> feature/protocol:include/NunchuckControl.h
 
 void nunchukControl() {
-    if (IRreceived)
-    {
-        ledState = ~ledState;
-        I2C_WriteToAdress(ledState, PCF8564_ADDRESS);
-        IRreceived = false;
-    }
     if (!Nunchuk.getState(NUNCHUK_ADDRESS)) { //refreshen
          return;
     }
