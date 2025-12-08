@@ -1,12 +1,7 @@
-#include <avr/io.h>
-#include <avr/interrupt.h>
-
-#define PCF8564_ADDRESS 0x21
+#include <LED.h>
 
 uint8_t ledState = 255;
-
 bool IRreceived = false;
-
 
 void I2C_start(void) 
 {
