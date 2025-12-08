@@ -21,6 +21,18 @@ uint8_t stap = 24; //stapgrootte voor de vierkantjes
 SdFat                SD;         // SD card filesystem
 Adafruit_ImageReader reader(SD); // Image-reader object, pass in SD filesys
 
+uint8_t huidigvakje = 0;
+
+uint8_t vakjes[11]; //met 11 bits kun je 88 vakjes opslaan (we gebruiken hiervan maar 81)
+
+void leegVakje(uint8_t vakje) {
+    vakjes[vakje/8] |=  1 << (vakje % 8);  // zet bit
+}
+
+uint8_t getVakje(uint8_t vakje) {
+    return vakjes[vakje/8] >> (vakje %  8) & 1;
+}
+
 void gridRender() {
     for (uint8_t i = 0; i < 81; i++) { //81 vakjes totaal (9x9)
         //tft.fillRect(squaresX, squaresY, 24, 24, ILI9341_RED); //vierkant renderen
@@ -48,10 +60,9 @@ void initScreen() {
 
 void cursorX(uint8_t x) {
     if (x) {
-        //tft.fillRect(squaresX += stap, squaresY, 24, 24, ILI9341_BLUE); //move cursor
         reader.drawBMP("/selected.bmp", tft, squaresX += stap, squaresY);
-        //tft.fillRect(squaresX - stap, squaresY, 24, 24, ILI9341_RED); //zet vorig vakje weer normaal
-        if (!zPressed) {
+        huidigvakje++;
+        if (!zPressed && !getVakje(huidigvakje - 1)) {
             reader.drawBMP("/slot.bmp", tft, squaresX - stap, squaresY);
         } else {
             reader.drawBMP("/open.bmp", tft, squaresX - stap, squaresY);
@@ -59,10 +70,9 @@ void cursorX(uint8_t x) {
         }
         // Minenet.send(0, 0, 0x01, 0x01);
     } else {
-        //tft.fillRect(squaresX -= stap, squaresY, 24, 24, ILI9341_BLUE); //move cursor
         reader.drawBMP("/selected.bmp", tft, squaresX -= stap, squaresY);
-        //tft.fillRect(squaresX + stap, squaresY, 24, 24, ILI9341_RED); //zet vorig vakje weer normaal
-        if (!zPressed) {
+        huidigvakje--;
+        if (!zPressed && !getVakje(huidigvakje + 1)) {
             reader.drawBMP("/slot.bmp", tft, squaresX + stap, squaresY);
         } else {
             reader.drawBMP("/open.bmp", tft, squaresX + stap, squaresY);
@@ -74,10 +84,9 @@ void cursorX(uint8_t x) {
 
 void cursorY(uint8_t y) {
     if (y) {
-        //tft.fillRect(squaresX, squaresY += stap, 24, 24, ILI9341_BLUE); //move cursor
         reader.drawBMP("/selected.bmp", tft, squaresX, squaresY += stap);
-        //tft.fillRect(squaresX, squaresY - stap, 24, 24, ILI9341_RED); //zet vorig vakje weer normaal
-        if (!zPressed) {
+        huidigvakje = huidigvakje + 9;
+        if (!zPressed && !getVakje(huidigvakje - 9)) {
             reader.drawBMP("/slot.bmp", tft, squaresX, squaresY - stap);
         } else {
             reader.drawBMP("/open.bmp", tft, squaresX, squaresY - stap);
@@ -85,10 +94,9 @@ void cursorY(uint8_t y) {
         }
         // Minenet.send(0, 0, 0x01, 0x03);
     } else {
-        //tft.fillRect(squaresX, squaresY -= stap, 24, 24, ILI9341_BLUE); //move cursor
+        huidigvakje = huidigvakje - 9;
         reader.drawBMP("/selected.bmp", tft, squaresX, squaresY -= stap);
-        //tft.fillRect(squaresX, squaresY + stap, 24, 24, ILI9341_RED); //zet vorig vakje weer normaal
-        if (!zPressed) {
+        if (!zPressed && !getVakje(huidigvakje + 9)) {
             reader.drawBMP("/slot.bmp", tft, squaresX, squaresY + stap);
         } else {
             reader.drawBMP("/open.bmp", tft, squaresX, squaresY + stap);

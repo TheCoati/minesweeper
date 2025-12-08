@@ -50,6 +50,7 @@ void nunchukControl() {
         //initScreen();
         //tft.fillRect(squaresX, squaresY, 24, 24, ILI9341_BLUE); //cursor
         zPressed = 1;
+        leegVakje(huidigvakje);
     }
 
 //    if (Nunchuk.state.c_button) { //bit sturen als er op de C knop wordt gedrukt
