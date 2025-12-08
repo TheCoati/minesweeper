@@ -3,10 +3,8 @@
 
 #include <avr/io.h>
 
-extern bool grid[9][9];
+extern uint8_t grid[41];
 extern uint8_t seedNumber;
-extern uint8_t columnNumber;
-extern uint8_t rowNumber;
 
 void fillField();
 
