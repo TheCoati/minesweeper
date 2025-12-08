@@ -121,3 +121,12 @@ void fillField(uint8_t seed)
     }
   }
 }
+
+// waarde van veld ophalen (index begint bij 0)
+// returned 255 als de index out of bound is
+uint8_t getFieldValue(uint8_t index)
+{
+  if (index > 80) return 255;
+  bool isHighNibble = (index % 2 == 0);
+  return (isHighNibble) ? (grid[index/2] & 0xF0) >> 4 : grid[index/2] & 0x0F;
+}

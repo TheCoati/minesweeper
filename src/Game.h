@@ -7,5 +7,6 @@ extern uint8_t grid[41];
 extern uint8_t seedNumber;
 
 void fillField();
+uint8_t getFieldValue(uint8_t index);
 
 #endif
