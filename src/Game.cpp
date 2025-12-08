@@ -158,9 +158,9 @@ bool isOpenField(uint8_t index)
 void openField(uint8_t index)
 {
   if (index > 80) return;
-  
+
   // controleren of veld al open is
-  if (isOpenField(index)) return; 
+  if (isOpenField(index)) return;
 
   // locatie van juiste bit berekenen
   uint8_t byteIndex = index / 8;
@@ -176,8 +176,8 @@ void openField(uint8_t index)
   if (fieldValue == 0)
   {
     openEmptyNeighbors(index);
-  } 
-  
+  }
+
   // als het veld een bom is
   else if (fieldValue == 9)
   {

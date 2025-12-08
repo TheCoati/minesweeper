@@ -8,5 +8,7 @@ extern uint8_t seedNumber;
 
 void fillField();
 uint8_t getFieldValue(uint8_t index);
+void openField(uint8_t index);
+void openEmptyNeighbors(uint8_t index);
 
 #endif
