@@ -15,6 +15,7 @@
 
 
 #include <Screen.h>
+//#include "Game.h"
 
 // For the Adafruit shield, these are the default.
 #define SD_CS 4
@@ -38,6 +39,27 @@ uint8_t stap = 24; //stapgrootte voor de vierkantjes
 uint8_t huidigvakje = 0;
 
 uint8_t vakjes[11]; //met 11 bits kun je 88 vakjes opslaan (we gebruiken hiervan maar 81)
+
+/*
+const char* revealVakje(uint8_t locatie) {
+
+    switch (getFieldValue(locatie)) {
+        case 0: return "/open.bmp";
+        case 1: return "/open_1.bmp";
+        case 2: return "/open_2.bmp";
+        case 3: return "/open_3.bmp";
+        case 4: return "/open_4.bmp";
+        case 5: return "/open_5.bmp";
+        case 6: return "/open_6.bmp";
+        case 7: return "/open_7.bmp";
+        case 8: return "/open_8.bmp";
+        case 9: return "/mine.bmp";
+
+            default: return "/slot.bmp";
+    }
+}
+*/
+
 
 void leegVakje(uint8_t vakje) {
     vakjes[vakje/8] |=  1 << (vakje % 8);  // zet bit

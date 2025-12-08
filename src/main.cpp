@@ -25,10 +25,16 @@ int main(void)
 {
 //  InitializeIO();
     init();
+    tft.begin();
+    tft.fillScreen(ILI9341_WHITE);
+    tft.setTextColor(ILI9341_BLACK);
+    tft.println("Test");
+    return 0;
     Minenet.begin();
     Wire.begin();
     Nunchuk.begin(NUNCHUK_ADDRESS);
-    tft.begin();
+
+
     SD.begin(SD_CS, SD_SCK_MHZ(25));
     initScreen();
 //  InitializeIO();
