@@ -1,0 +1,1 @@
+SD-Kaart moet een SDHC of ouder zijn (32GB of minder), en moet geformateerd zijn in FAT32.
