@@ -1,45 +1,60 @@
-#include <Adafruit_ILI9341.h>
-#include <Adafruit_GFX.h>
-#include <Minenet.h>
 #include <avr/delay.h>
+#include <NunchuckControl.h>
+#include <SPI.h>
+#include "Screen.h"
+#include <Minenet.h>
 
-#define TFT_DC 9
-#define TFT_CS 10
+// PD6 --> led
+// PD2 --> sensor
 
-<<<<<<< HEAD
+//void InitializeIO()
+//{
+////  initializeIRIO();
+//
+//  // INT0 falling edge
+//  EICRA |= (1 << ISC01);
+//  EICRA &= ~(1 << ISC00);
+//  EIMSK |= (1 << INT0);
+//
+//  sei();
+//}
+
 int main(void)
 {
-  init();
-  Wire.begin();
-  Nunchuk.begin(NUNCHUK_ADDRESS);
-  tft.begin();
-  clearScreen();
-
-  while(true)
-  {
-    nunchukControl();
-  }
-  return 0;
-}
-=======
-Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
-
-int main(void) {
+//  InitializeIO();
     init();
-
-    tft.begin();
-    tft.fillScreen(ILI9341_BLACK);
-
     Minenet.begin();
+    Wire.begin();
+    Nunchuk.begin(NUNCHUK_ADDRESS);
+    tft.begin();
+    SD.begin(SD_CS, SD_SCK_MHZ(25));
+    initScreen();
+//  InitializeIO();
 
-    while (true) {
+    while(true)
+    {
         if (Minenet.available()) {
             MinenetPacket packet = Minenet.read();
 
-            tft.println(packet.payload);
+            if (packet.opCode == 0x01) {
+                switch (packet.payload) {
+                    case 0x01:
+                        cursorX(0);
+                        break;
+                    case 0x02:
+                        cursorX(1);
+                        break;
+                    case 0x03:
+                        cursorY(0);
+                        break;
+                    case 0x04:
+                        cursorY(1);
+                        break;
+                }
+            }
         }
 
-        _delay_ms(500);
+        nunchukControl();
     }
+    return 0;
 }
->>>>>>> feature/protocol

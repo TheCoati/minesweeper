@@ -7,6 +7,8 @@
 
 #define NUNCHUK_ADDRESS 0x52
 
+extern bool zPressed;
+
 void nunchukControl();
 
 #endif
