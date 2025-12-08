@@ -62,12 +62,10 @@ uint8_t grid[41];
 uint8_t seedNumber = 98;
 uint8_t mineNumber = 10;
 
-uint8_t mutatePos(uint8_t position)
+uint8_t mutateSeed(uint8_t seed)
 {
-  position ^= position << 3;
-  position ^= position >> 5;
-  position ^= position << 1;
-  return position % 81;
+  seed = (seed * 13) + 7;
+  return seed;
 }
 
 // waarde van veld ophalen (index begint bij 0)
@@ -116,12 +114,12 @@ void fillField(uint8_t seed)
   }
   
   // mines plaatsen gebaseerd op seed
-  uint8_t pos = seed;
   uint8_t minesPlaced = 0;
   
   while (minesPlaced < mineNumber)
   {
-    pos = mutatePos(pos);
+    seed = mutateSeed(seed);
+    uint8_t pos = seed % 81;
     
     // plaats in array berekenen (welke byte)
     uint8_t byteIndex = pos / 2;
