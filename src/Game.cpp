@@ -1,14 +1,27 @@
 #include <Game.h>
 
 uint8_t grid[41];
+uint8_t isVisibleGrid[11];
 
 uint8_t seedNumber = 98;
 uint8_t mineNumber = 10;
 
+// muteert 8 bit unsigned integer
 uint8_t mutateSeed(uint8_t seed)
 {
   seed = (seed * 13) + 7;
   return seed;
+}
+
+// verandert 1d index in 2d coordinaten
+void indexToCoords(uint8_t index, int8_t *row, int8_t *col) {
+  *row = index / 9;
+  *col = index % 9;
+}
+
+// verandert 2d coordinaten in 1d index
+uint8_t coordsToIndex(int8_t row, int8_t col) {
+  return (uint8_t)(row * 9 + col);
 }
 
 // waarde van veld ophalen (index begint bij 0)
@@ -103,9 +116,10 @@ void fillField(uint8_t seed)
     // controleren of bom aanwezig is in veld
     if (getFieldValue(i) == 9)
     {
-      // 1d positie omzetten in 2d positie
-      int8_t row = i / 9;
-      int8_t col = i % 9;
+
+      // index omzetten in coordinaten
+      int8_t row, col;
+      indexToCoords(i, &row, &col);
 
       // loop door 3x3 grid om bom heen
       for (int8_t r = row - 1; r <= row + 1; r++)
@@ -116,7 +130,7 @@ void fillField(uint8_t seed)
           if (r >= 0 && r < 9 && c >= 0 && c < 9)
           {
             // 2d positie omzetten naar 1d positie
-            uint8_t neighborPos = r * 9 + c;
+            uint8_t neighborPos = coordsToIndex(r, c);
             
             // controleren of we niet op de bom zelf zitten
             if (neighborPos != i)
@@ -130,3 +144,84 @@ void fillField(uint8_t seed)
   }
 
 }
+
+// controleert of een veld open is
+bool isOpenField(uint8_t index)
+{
+  if (index > 80) return false;
+  uint8_t byteIndex = index / 8;
+  uint8_t bitIndex = index % 8;
+  return (isVisibleGrid[byteIndex] & (0x80 >> bitIndex)) != 0;
+}
+
+// opent een veld
+void openField(uint8_t index)
+{
+  if (index > 80) return;
+  
+  // controleren of veld al open is
+  if (isOpenField(index)) return; 
+
+  // locatie van juiste bit berekenen
+  uint8_t byteIndex = index / 8;
+  uint8_t bitIndex = index % 8;
+
+  // veld openen
+  isVisibleGrid[byteIndex] |= (0x80 >> bitIndex);
+
+  // waarde van veld ophalen
+  uint8_t fieldValue = getFieldValue(index);
+
+  // als het veld leeg (0) is open dan aanliggende lege velden
+  if (fieldValue == 0)
+  {
+    openEmptyNeighbors(index);
+  } 
+  
+  // als het veld een bom is
+  else if (fieldValue == 9)
+  {
+    // TODO: game over code
+  }
+}
+
+// opent aanliggende lege velden (gecorrigeerd)
+void openEmptyNeighbors(uint8_t index)
+{
+  // bound controleren
+  if (index > 80) return;
+  
+  // imhoud van veld ophalen
+  uint8_t value = getFieldValue(index);
+  
+  // als veld niet leeg is --> return
+  if (value != 0) {
+      return; 
+  }
+  
+  // index omzetten in coordinaten
+  int8_t row, col;
+  indexToCoords(index, &row, &col);
+
+  // door 3x3 veld loopen om huidige vakje
+  for (int8_t r = row - 1; r <= row + 1; r++)
+  {
+    for (int8_t c = col - 1; c <= col + 1; c++)
+    {
+      // controleren of we binnen bounds van orginele grid zitten
+      if (r >= 0 && r < 9 && c >= 0 && c < 9)
+      {
+        // coordinaten omzetten in index
+        uint8_t neighborPos = coordsToIndex(r, c);
+        
+        // controleren of we niet in het huidige veld zitten
+        if (neighborPos != index)
+        {
+          // veld openen
+          openField(neighborPos);
+        }
+      }
+    }
+  }
+}
+
