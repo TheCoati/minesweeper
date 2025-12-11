@@ -68,5 +68,9 @@ bool isPrimaryPressed() {
  * @return State of the C button.
  */
 bool isSecondaryPressed() {
+    if (!Nunchuk.getState(NUNCHUK_ADDRESS)) {
+        return false;
+    }
+
     return Nunchuk.state.c_button;
 }

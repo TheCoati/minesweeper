@@ -167,6 +167,9 @@ void drawCursor(uint8_t index) {
     tft.fillCircle(x + 12, y + 12, 6, ILI9341_RED);
 }
 
+/**
+ * Draws the main menu on the screen.
+ */
 void drawMenu() {
     // Todo
     tft.fillScreen(ILI9341_WHITE);
