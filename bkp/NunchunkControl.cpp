@@ -1,4 +1,4 @@
-#include <NunchuckControl.h>
+#include "NunchuckControl.h"
 
 #define NUNCHUK_ADDRESS 0x52
 

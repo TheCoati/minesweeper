@@ -1,9 +1,9 @@
 #ifndef SCREEN_H_
 #define SCREEN_H_
 
-#include <Adafruit_ILI9341.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_Imagereader.h>
+#include "Adafruit_GFX.h"
+#include "Adafruit_ILI9341.h"
+#include "Adafruit_ImageReader.h"
 #include "Game.h"
 
 // For the Adafruit shield, these are the default.
