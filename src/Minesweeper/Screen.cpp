@@ -66,6 +66,10 @@ String getFieldImage(int value) {
         return "/open.bmp";
     }
 
+    if (value == 9) {
+        return "/mine.bmp";
+    }
+
     return "/open_" + String(value) + ".bmp";
 }
 
@@ -93,7 +97,9 @@ uint16_t getFieldColor(int value) {
         case 7:
             return ILI9341_CYAN;
         case 8:
-            return ILI9341_CYAN;
+            return ILI9341_LIGHTGREY;
+        case 9:
+            return ILI9341_DARKGREY;
     }
 
     return ILI9341_WHITE;
@@ -148,15 +154,11 @@ void drawField() {
     if (hasSDCard) {
         reader.drawBMP("/outline.bmp", tft, 0, 0);
     }
-
-    for (uint8_t i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
-        drawClosed(i);
-    }
 }
 
 void drawCursor(uint8_t index) {
     uint8_t x, y;
     indexToCoord(index, x, y);
 
-    tft.fillCircle(x - 6, y - 6, 12, ILI9341_RED);
+    tft.fillCircle(x + 12, y + 12, 6, ILI9341_RED);
 }
