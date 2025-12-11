@@ -130,7 +130,7 @@ void incrementFields() {
  * Fills the field with mines and numbers based on a seed.
  * @param seed The seed to use for mine placement.
  */
-void fillGrid(uint8_t seed) {
+void fillGrid() {
     // Fill grid with empty fields
     for (uint8_t i = 0; i < GRID_REGISTER_SIZE; i++) {
         gridRegister[i] = 0;
@@ -140,8 +140,8 @@ void fillGrid(uint8_t seed) {
 
     while (minesPlaced < minesCount) {
         // Generate random position for mine
-        seed = mutateSeed(seed);
-        uint8_t pos = seed % TOTAL_FIELDS;
+        currentSeed = mutateSeed(currentSeed);
+        uint8_t pos = currentSeed % TOTAL_FIELDS;
 
         // Get byte index in grid register
         uint8_t byteIndex = pos / 2;
@@ -224,33 +224,88 @@ void openField(uint8_t index) {
  * @param index The index of the field to check neighbors for.
  */
 void openEmptyNeighbors(uint8_t index) {
-    if (index > 80)
+    if (index > TOTAL_FIELDS - 1)
         return;
 
-    uint8_t value = getFieldValue(index);
+    // A simple queue to hold field indices to visit.
+    uint8_t queue[TOTAL_FIELDS];
+    uint8_t queueStart = 0;
+    uint8_t queueEnd = 0;
 
-    if (value != 0)
-        return;
+    // Add the initial field to the queue.
+    queue[queueEnd++] = index;
 
-    int8_t row, col;
-    indexToCoords(index, &row, &col);
+    while (queueStart != queueEnd) {
+        // Dequeue a field index.
+        uint8_t currentIndex = queue[queueStart++];
 
-    for (int8_t r = row - 1; r <= row + 1; r++) {
-        if (r < 0 || r >= 9)
-            continue; // Skip out of bounds rows
+        // Get coordinates for the current field.
+        int8_t row, col;
+        indexToCoords(currentIndex, &row, &col);
 
-        for (int8_t c = col - 1; c <= col + 1; c++) {
-            if (c < 0 || c >= 9)
-                continue; // Skip out of bounds columns
+        // Iterate through all neighbors (3x3 grid).
+        for (int8_t r = row - 1; r <= row + 1; r++) {
+            if (r < 0 || r >= GRID_SIZE)
+                continue;
 
-            uint8_t neighborPos = coordsToIndex(r, c);
+            for (int8_t c = col - 1; c <= col + 1; c++) {
+                if (c < 0 || c >= GRID_SIZE)
+                    continue;
 
-            if (neighborPos != index) {
-                openField(neighborPos);
+                uint8_t neighborIndex = coordsToIndex(r, c);
+
+                // Skip if the neighbor is already open.
+                if (isFieldOpen(neighborIndex))
+                    continue;
+
+                // Todo: Remove duplicate code with openField?
+                // Open the neighbor field.
+                uint8_t byteIndex = neighborIndex / 8;
+                uint8_t bitIndex = neighborIndex % 8;
+
+                fieldRegister[byteIndex] |= (0x80 >> bitIndex);
+
+                uint8_t neighborValue = getFieldValue(neighborIndex);
+                drawOpen(neighborIndex, neighborValue);
+
+                // If the neighbor is also empty, add it to the queue to process its neighbors.
+                if (neighborValue == 0) {
+                    queue[queueEnd++] = neighborIndex;
+                }
             }
         }
     }
 }
+
+
+//void openEmptyNeighbors(uint8_t index) {
+//    if (index > 80)
+//        return;
+//
+//    uint8_t value = getFieldValue(index);
+//
+//    if (value != 0)
+//        return;
+//
+//    int8_t row, col;
+//    indexToCoords(index, &row, &col);
+//
+//    for (int8_t r = row - 1; r <= row + 1; r++) {
+//        if (r < 0 || r >= 9)
+//            continue; // Skip out of bounds rows
+//
+//        for (int8_t c = col - 1; c <= col + 1; c++) {
+//            if (c < 0 || c >= 9)
+//                continue; // Skip out of bounds columns
+//
+//            uint8_t neighborPos = coordsToIndex(r, c);
+//
+//            if (neighborPos != index) {
+//                openField(neighborPos);
+//            }
+//        }
+//    }
+//}
 
 /**
  * Redraws a tile at the given index based on its state (open/closed).
@@ -375,7 +430,7 @@ void resetField() {
         fieldRegister[i] = 0;
     }
 
-    fillGrid(currentSeed);
+    fillGrid();
 
     for (uint8_t i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
         redrawTile(i);
