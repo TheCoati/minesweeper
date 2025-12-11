@@ -1,10 +1,16 @@
 #include "Controller.h"
-#include <Nunchuk.h>
 
 #define NUNCHUK_ADDRESS 0x52
 
 bool waitForNewInput = true;
 ControllerDirection direction = IDLE;
+
+/**
+ * Initialize the controller.
+ */
+void initController() {
+    Nunchuk.begin(NUNCHUK_ADDRESS);
+}
 
 /**
  * Get the direction of the controller.
@@ -50,6 +56,10 @@ ControllerDirection getJoystick() {
  * @return State of the Z button.
  */
 bool isPrimaryPressed() {
+    if (!Nunchuk.getState(NUNCHUK_ADDRESS)) {
+        return false;
+    }
+
     return Nunchuk.state.z_button;
 }
 

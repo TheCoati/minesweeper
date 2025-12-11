@@ -1,221 +1,261 @@
-#include "Screen.h"
-#include "Controller.h"
-#include "Utils.h"
+#include "Game.h"
 
 #define GRID_SIZE 9
+#define TOTAL_FIELDS (GRID_SIZE * GRID_SIZE)
 
-uint8_t cursorPosition = 0;
-
+uint8_t active = true;
 uint8_t gridRegister[41];
-uint8_t isVisibleGrid[11];
-uint8_t mineNumber = 10;
+uint8_t fieldRegister[11];
+uint8_t currentSeed = 0;
+uint8_t cursorPosition = 0;
+uint8_t minesCount = 10;
 
-extern void startGame();
 extern void destroyGame();
 extern void handleInput();
 extern void openField(uint8_t);
 extern void openEmptyNeighbors(uint8_t);
 extern void resetField();
 
-// muteert 8 bit unsigned integer
-uint8_t mutateSeed(uint8_t seed) {
+/**
+ * Mutates the seed to randomize mine placement.
+ * @param seed The current seed.
+ * @return The mutated seed.
+ */
+inline uint8_t mutateSeed(uint8_t seed) {
     seed = (seed * 13) + 7;
+
     return seed;
 }
 
-void indexToCoords(uint8_t index, int8_t *row, int8_t *col) {
-    *row = index / 9;
-    *col = index % 9;
+/**
+ * Converts a 1D index to 2D coordinates.
+ * @param index The 1D index.
+ * @param row The row coordinate.
+ * @param col The column coordinate.
+ */
+inline void indexToCoords(uint8_t index, int8_t *row, int8_t *col) {
+    *row = index / GRID_SIZE;
+    *col = index % GRID_SIZE;
 }
 
-uint8_t coordsToIndex(int8_t row, int8_t col) {
-    return (uint8_t) (row * 9 + col);
+/**
+ * Converts 2D coordinates to a 1D index.
+ * @param row The row coordinate.
+ * @param col The column coordinate.
+ * @return The 1D index.
+ */
+inline uint8_t coordsToIndex(int8_t row, int8_t col) {
+    return (uint8_t) (row * GRID_SIZE + col);
 }
 
+/**
+ * Get the value of a field.
+ * 0 = Empty
+ * 1-8 = Number of adjacent mines
+ * 9 = Mine
+ * @param index The index of the field.
+ * @return The value of the field.
+ */
 uint8_t getFieldValue(uint8_t index) {
-    if (index > 80) return 255;
+    if (index > TOTAL_FIELDS - 1)
+        return 255;
+
     bool isHighNibble = (index % 2 == 0);
+
     return (isHighNibble) ? (gridRegister[index / 2] & 0xF0) >> 4 : gridRegister[index / 2] & 0x0F;
 }
 
+/**
+ * Increments the adjacent mines value a field by 1.
+ * @param index The index of the field.
+ */
 void incrementFieldValue(uint8_t index) {
-    // bounds controleren
-    if (index > 80) return;
+    if (index > TOTAL_FIELDS - 1)
+        return;
 
-    // huidige waarde van veld ophalen
-    uint8_t fieldValue = getFieldValue(index);
+    uint8_t value = getFieldValue(index);
 
-    // 8 of hoger --> kan niet verhogen (bom of max waarde)
-    if (fieldValue >= 8) return;
+    if (value >= 8)
+        return; // Do not increment if value is already 8 or a mine
 
-    // berekenen welk deel van byte (high/low gedeelte)
+    // Check if high or low nibble
     bool isHighNibble = (index % 2 == 0);
 
-    // lokale waarde van veld verhogen met 1
-    fieldValue++;
+    value++;
 
-    // huidige waarde van byte ophalen
     uint8_t byteValue = gridRegister[index / 2];
 
-    // lokaal opgeslagen waarde eroverheen maskeren
+    // Mask local stored value
     byteValue &= (isHighNibble) ? 0x0F : 0xF0;
-    byteValue |= (isHighNibble) ? fieldValue << 4 : fieldValue;
+    byteValue |= (isHighNibble) ? value << 4 : value;
 
-    // lokale waarde naar grid array schrijven
+    // Write local value back to grid
     gridRegister[index / 2] = byteValue;
 }
 
-void fillField(uint8_t seed) {
-    // veld vullen
+/**
+ * Increments the adjacent mine counts for all fields around each mine.
+ */
+void incrementFields() {
+    for (uint8_t index = 0; index < TOTAL_FIELDS; index++) {
+        uint8_t value = getFieldValue(index);
+
+        if (value == 9) {
+            int8_t row, col;
+            indexToCoords(index, &row, &col);
+
+            // Loop through 3x3 grid around the mine
+            for (int8_t r = row - 1; r <= row + 1; r++) {
+                if (r < 0 || r >= 9)
+                    continue; // Skip out of bounds rows
+
+                for (int8_t c = col - 1; c <= col + 1; c++) {
+                    if (c < 0 || c >= 9)
+                        continue; // Skip out of bounds columns
+
+                    uint8_t neighborPos = coordsToIndex(r, c);
+
+                    if (neighborPos != index) {
+                        incrementFieldValue(neighborPos);
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Fills the field with mines and numbers based on a seed.
+ * @param seed The seed to use for mine placement.
+ */
+void fillGrid(uint8_t seed) {
+    // Fill grid with empty fields
     for (uint8_t i = 0; i < 41; i++) {
         gridRegister[i] = 0;
     }
 
-    // mines plaatsen gebaseerd op seed
     uint8_t minesPlaced = 0;
 
-    while (minesPlaced < mineNumber) {
+    while (minesPlaced < minesCount) {
+        // Generate random position for mine
         seed = mutateSeed(seed);
-        uint8_t pos = seed % 81;
+        uint8_t pos = seed % TOTAL_FIELDS;
 
-        // plaats in array berekenen (welke byte)
+        // Get byte index in grid register
         uint8_t byteIndex = pos / 2;
-        // berekenen welk deel van byte (high/low gedeelte)
+
+        // Check if high or low nibble
         bool isHighNibble = (pos % 2 == 0);
 
-        uint8_t checkValue;
-
         if (isHighNibble) {
-            // controleren of er een mijn is
-            checkValue = (gridRegister[byteIndex] & 0x90);
+            // Get value of the nibble and check if it's already a mine
+            uint8_t isMine = (gridRegister[byteIndex] & 0x90);
 
-            if (checkValue == 0) {
-                // geen mijn --> mijn plaatsen
+            if (isMine == 0) {
+                // Place mine on given position
                 gridRegister[byteIndex] |= 0x90;
                 minesPlaced++;
             }
         } else {
-            // controleren of er een mijn is
-            checkValue = (gridRegister[byteIndex] & 0x09);
+            // Get value of the nibble and check if it's already a mine
+            uint8_t isMine = (gridRegister[byteIndex] & 0x09);
 
-            if (checkValue == 0) {
-                // geen mijn --> mijn plaatsen
+            if (isMine == 0) {
+                // Place mine on given position
                 gridRegister[byteIndex] |= 0x09;
                 minesPlaced++;
             }
         }
     }
 
-    // velden rondom bommen ophogen
-    for (uint8_t i = 0; i < 81; i++) {
-        // controleren of bom aanwezig is in veld
-        if (getFieldValue(i) == 9) {
-
-            // index omzetten in coordinaten
-            int8_t row, col;
-            indexToCoords(i, &row, &col);
-
-            // loop door 3x3 grid om bom heen
-            for (int8_t r = row - 1; r <= row + 1; r++) {
-                for (int8_t c = col - 1; c <= col + 1; c++) {
-                    // controleren of we binnen bounds zijn van originele 9x9 grid
-                    if (r >= 0 && r < 9 && c >= 0 && c < 9) {
-                        // 2d positie omzetten naar 1d positie
-                        uint8_t neighborPos = coordsToIndex(r, c);
-
-                        // controleren of we niet op de bom zelf zitten
-                        if (neighborPos != i) {
-                            incrementFieldValue(neighborPos);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
+    incrementFields();
 }
 
-// controleert of een veld open is
-bool isOpenField(uint8_t index) {
-    if (index > 80) return false;
+/**
+ * Checks if a field is open.
+ * @param index The index of the field.
+ * @return True if the field is open, false otherwise.
+ */
+bool isFieldOpen(uint8_t index) {
+    if (index > TOTAL_FIELDS - 1)
+        return false;
+
     uint8_t byteIndex = index / 8;
     uint8_t bitIndex = index % 8;
-    return (isVisibleGrid[byteIndex] & (0x80 >> bitIndex)) != 0;
+
+    return (fieldRegister[byteIndex] & (0x80 >> bitIndex)) != 0;
 }
 
-
-// opent een veld
+/**
+ * Opens a field at the given index.
+ * @param index The index of the field to open.
+ */
 void openField(uint8_t index) {
-    if (index > 80) return;
+    if (index > TOTAL_FIELDS - 1)
+        return;
 
-    // controleren of veld al open is
-    if (isOpenField(index)) return;
+    if (isFieldOpen(index))
+        return;
 
-    // locatie van juiste bit berekenen
     uint8_t byteIndex = index / 8;
     uint8_t bitIndex = index % 8;
 
-    // veld openen
-    isVisibleGrid[byteIndex] |= (0x80 >> bitIndex);
+    // Open the field
+    fieldRegister[byteIndex] |= (0x80 >> bitIndex);
 
-    // waarde van veld ophalen
     uint8_t fieldValue = getFieldValue(index);
 
     drawOpen(index, fieldValue);
 
-    // als het veld leeg (0) is open dan aanliggende lege velden
+    // Open neighboring fields if the field is empty
     if (fieldValue == 0) {
         openEmptyNeighbors(index);
-    }
-
-        // als het veld een bom is
-    else if (fieldValue == 9) {
+    } else if (fieldValue == 9) {
         // TODO: game over code
+        _delay_ms(3000);
+        resetField();
     }
 }
 
-
-
-// opent aanliggende lege velden (gecorrigeerd)
+/**
+ * Opens all empty neighboring fields around a given index.
+ * @param index The index of the field to check neighbors for.
+ */
 void openEmptyNeighbors(uint8_t index) {
-    // bound controleren
-    if (index > 80) return;
+    if (index > 80)
+        return;
 
-    // imhoud van veld ophalen
     uint8_t value = getFieldValue(index);
 
-    // als veld niet leeg is --> return
-    if (value != 0) {
+    if (value != 0)
         return;
-    }
 
-    // index omzetten in coordinaten
     int8_t row, col;
     indexToCoords(index, &row, &col);
 
-    // door 3x3 veld loopen om huidige vakje
     for (int8_t r = row - 1; r <= row + 1; r++) {
-        for (int8_t c = col - 1; c <= col + 1; c++) {
-            // controleren of we binnen bounds van orginele grid zitten
-            if (r >= 0 && r < 9 && c >= 0 && c < 9) {
-                // coordinaten omzetten in index
-                uint8_t neighborPos = coordsToIndex(r, c);
+        if (r < 0 || r >= 9)
+            continue; // Skip out of bounds rows
 
-                // controleren of we niet in het huidige veld zitten
-                if (neighborPos != index) {
-                    // veld openen
-                    openField(neighborPos);
-                }
+        for (int8_t c = col - 1; c <= col + 1; c++) {
+            if (c < 0 || c >= 9)
+                continue; // Skip out of bounds columns
+
+            uint8_t neighborPos = coordsToIndex(r, c);
+
+            if (neighborPos != index) {
+                openField(neighborPos);
             }
         }
     }
 }
 
-
-
-
+/**
+ * Redraws a tile at the given index based on its state (open/closed).
+ * @param index The index of the tile to redraw.
+ */
 void redrawTile(uint8_t index) {
-    uint8_t isOpen = isOpenField(index);
+    uint8_t isOpen = isFieldOpen(index);
 
     if (isOpen) {
         uint8_t value = getFieldValue(index);
@@ -227,6 +267,10 @@ void redrawTile(uint8_t index) {
     drawClosed(index);
 }
 
+/**
+ * Moves the cursor to a new index.
+ * @param index The index to move the cursor to.
+ */
 void moveCursorTo(uint8_t index) {
     if (index < 0 || index > 80)
         return;
@@ -237,6 +281,9 @@ void moveCursorTo(uint8_t index) {
     cursorPosition = index;
 }
 
+/**
+ * Moves the cursor left.
+ */
 void moveLeft() {
     if (cursorPosition % GRID_SIZE == 0) {
         return;
@@ -245,6 +292,9 @@ void moveLeft() {
     moveCursorTo(cursorPosition - 1);
 }
 
+/**
+ * Moves the cursor right.
+ */
 void moveRight() {
     if (cursorPosition % GRID_SIZE == GRID_SIZE - 1) {
         return;
@@ -253,6 +303,9 @@ void moveRight() {
     moveCursorTo(cursorPosition + 1);
 }
 
+/**
+ * Moves the cursor up.
+ */
 void moveUp() {
     if (cursorPosition / GRID_SIZE == 0) {
         return;
@@ -261,6 +314,9 @@ void moveUp() {
     moveCursorTo(cursorPosition - GRID_SIZE);
 }
 
+/**
+ * Moves the cursor down.
+ */
 void moveDown() {
     if (cursorPosition / GRID_SIZE == GRID_SIZE - 1) {
         return;
@@ -268,6 +324,9 @@ void moveDown() {
     moveCursorTo(cursorPosition + GRID_SIZE);
 }
 
+/**
+ * Handles input from the controller.
+ */
 void handleInput() {
     ControllerDirection direction = getJoystick();
 
@@ -293,23 +352,28 @@ void handleInput() {
     }
 
     if (isSecondaryPressed()) {
-        resetField(); // Todo: Remove reset on final product
+        destroyGame(); // Todo: Remove reset on final product
     }
 }
 
-
+/**
+ * Called on each game tick.
+ */
 void onTick() {
     handleInput();
 }
 
+/**
+ * Resets the field to its initial state.
+ */
 void resetField() {
     cursorPosition = 0;
 
     for (uint8_t i = 0; i < 11; i++) {
-        isVisibleGrid[i] = 0;
+        fieldRegister[i] = 0;
     }
 
-    fillField(seed);
+    fillGrid(currentSeed);
 
     for (uint8_t i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
         redrawTile(i);
@@ -318,8 +382,29 @@ void resetField() {
     drawCursor(cursorPosition);
 }
 
-void startGame() {
+/**
+ * Starts the game with a given seed.
+ * @param seed The seed to use for mine placement.
+ */
+void startGame(uint8_t seed) {
+    currentSeed = seed;
+
     drawField();
     resetField();
+
+    active = true;
+
+    while (active) {
+        onTick();
+    }
+}
+
+/**
+ * Destroy the game instance.
+ */
+void destroyGame() {
+    active = false;
+
+    drawMenu();
 }
 

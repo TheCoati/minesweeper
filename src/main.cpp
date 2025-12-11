@@ -1,20 +1,28 @@
-#include "Minesweeper/Game.h"
-#include "Minesweeper/Screen.h"
-#include "Minesweeper/Utils.h"
 #include <Minenet.h>
+#include "Minesweeper/Game.h"
+#include "Minesweeper/Controller.h"
+
+uint8_t globalSeed = 0;
 
 int main() {
+    init();
+
+    // Libraries
     Wire.begin();
     Minenet.begin();
 
-    init();
+    // Minesweeper
     initScreen();
+    initController();
 
-    // Todo: Start from main menu not on device boot
-    startGame();
+    drawMenu();
 
     while (true) {
-        seed++;
-        onTick();
+        globalSeed++;
+
+        // Todo
+        if (isPrimaryPressed()) {
+            startGame(globalSeed);
+        }
     }
 }

@@ -156,9 +156,21 @@ void drawField() {
     }
 }
 
+/**
+ * Draws the cursor on the screen.
+ * @param index The index of the cursor to draw.
+ */
 void drawCursor(uint8_t index) {
     uint8_t x, y;
     indexToCoord(index, x, y);
 
     tft.fillCircle(x + 12, y + 12, 6, ILI9341_RED);
+}
+
+void drawMenu() {
+    // Todo
+    tft.fillScreen(ILI9341_WHITE);
+    tft.setCursor(0, 0);
+    tft.setTextColor(ILI9341_BLACK);
+    tft.println("Druk op Z om de game te starten.");
 }
