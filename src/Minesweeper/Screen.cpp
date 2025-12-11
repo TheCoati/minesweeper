@@ -27,10 +27,8 @@ void initScreen() {
     if (!hasSDCard) {
         tft.setTextColor(ILI9341_RED);
         tft.println("[ERROR] SD card read failure.");
-        tft.setTextColor(ILI9341_WHITE);
-        tft.println("[INFO] Starting in development mode...");
 
-        _delay_ms(5000);
+        _delay_ms(1000);
     }
 }
 

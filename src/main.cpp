@@ -5,13 +5,12 @@
 uint8_t globalSeed = 0;
 
 int main() {
-    init();
-
     // Libraries
     Wire.begin();
     Minenet.begin();
 
     // Minesweeper
+    init();
     initScreen();
     initController();
 

@@ -14,6 +14,7 @@ uint8_t minesCount = 10;
 
 extern void destroyGame();
 extern void handleInput();
+extern uint8_t getFieldValue(uint8_t);
 extern void openField(uint8_t);
 extern void openEmptyNeighbors(uint8_t);
 extern void resetField();
@@ -48,6 +49,20 @@ inline void indexToCoords(uint8_t index, int8_t *row, int8_t *col) {
  */
 inline uint8_t coordsToIndex(int8_t row, int8_t col) {
     return (uint8_t) (row * GRID_SIZE + col);
+}
+
+inline uint8_t openFieldAndGetValue(uint8_t index) {
+    uint8_t byteIndex = index / 8;
+    uint8_t bitIndex = index % 8;
+
+    // Open the field
+    fieldRegister[byteIndex] |= (0x80 >> bitIndex);
+
+    uint8_t fieldValue = getFieldValue(index);
+
+    drawOpen(index, fieldValue);
+
+    return fieldValue;
 }
 
 /**
@@ -199,15 +214,7 @@ void openField(uint8_t index) {
     if (isFieldOpen(index))
         return;
 
-    uint8_t byteIndex = index / 8;
-    uint8_t bitIndex = index % 8;
-
-    // Open the field
-    fieldRegister[byteIndex] |= (0x80 >> bitIndex);
-
-    uint8_t fieldValue = getFieldValue(index);
-
-    drawOpen(index, fieldValue);
+    uint8_t fieldValue = openFieldAndGetValue(index);
 
     // Open neighboring fields if the field is empty
     if (fieldValue == 0) {
@@ -258,15 +265,8 @@ void openEmptyNeighbors(uint8_t index) {
                 if (isFieldOpen(neighborIndex))
                     continue;
 
-                // Todo: Remove duplicate code with openField?
                 // Open the neighbor field.
-                uint8_t byteIndex = neighborIndex / 8;
-                uint8_t bitIndex = neighborIndex % 8;
-
-                fieldRegister[byteIndex] |= (0x80 >> bitIndex);
-
-                uint8_t neighborValue = getFieldValue(neighborIndex);
-                drawOpen(neighborIndex, neighborValue);
+                uint8_t neighborValue = openFieldAndGetValue(neighborIndex);
 
                 // If the neighbor is also empty, add it to the queue to process its neighbors.
                 if (neighborValue == 0) {
@@ -276,36 +276,6 @@ void openEmptyNeighbors(uint8_t index) {
         }
     }
 }
-
-
-//void openEmptyNeighbors(uint8_t index) {
-//    if (index > 80)
-//        return;
-//
-//    uint8_t value = getFieldValue(index);
-//
-//    if (value != 0)
-//        return;
-//
-//    int8_t row, col;
-//    indexToCoords(index, &row, &col);
-//
-//    for (int8_t r = row - 1; r <= row + 1; r++) {
-//        if (r < 0 || r >= 9)
-//            continue; // Skip out of bounds rows
-//
-//        for (int8_t c = col - 1; c <= col + 1; c++) {
-//            if (c < 0 || c >= 9)
-//                continue; // Skip out of bounds columns
-//
-//            uint8_t neighborPos = coordsToIndex(r, c);
-//
-//            if (neighborPos != index) {
-//                openField(neighborPos);
-//            }
-//        }
-//    }
-//}
 
 /**
  * Redraws a tile at the given index based on its state (open/closed).
