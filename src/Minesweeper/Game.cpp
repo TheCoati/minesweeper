@@ -2,10 +2,12 @@
 
 #define GRID_SIZE 9
 #define TOTAL_FIELDS (GRID_SIZE * GRID_SIZE)
+#define GRID_REGISTER_SIZE 41 // 81 fields, 2 per byte = 41 bytes (1 nibble unused)
+#define FIELD_REGISTER_SIZE 11 // 81 fields, 1 bit per field = 11 bytes (7 bits unused)
 
 uint8_t active = true;
-uint8_t gridRegister[41];
-uint8_t fieldRegister[11];
+uint8_t gridRegister[GRID_REGISTER_SIZE];
+uint8_t fieldRegister[FIELD_REGISTER_SIZE];
 uint8_t currentSeed = 0;
 uint8_t cursorPosition = 0;
 uint8_t minesCount = 10;
@@ -130,7 +132,7 @@ void incrementFields() {
  */
 void fillGrid(uint8_t seed) {
     // Fill grid with empty fields
-    for (uint8_t i = 0; i < 41; i++) {
+    for (uint8_t i = 0; i < GRID_REGISTER_SIZE; i++) {
         gridRegister[i] = 0;
     }
 
@@ -212,7 +214,7 @@ void openField(uint8_t index) {
         openEmptyNeighbors(index);
     } else if (fieldValue == 9) {
         // TODO: game over code
-        _delay_ms(3000);
+        _delay_ms(1000);
         resetField();
     }
 }
@@ -369,7 +371,7 @@ void onTick() {
 void resetField() {
     cursorPosition = 0;
 
-    for (uint8_t i = 0; i < 11; i++) {
+    for (uint8_t i = 0; i < FIELD_REGISTER_SIZE; i++) {
         fieldRegister[i] = 0;
     }
 

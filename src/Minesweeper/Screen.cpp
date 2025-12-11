@@ -170,7 +170,8 @@ void drawCursor(uint8_t index) {
 void drawMenu() {
     // Todo
     tft.fillScreen(ILI9341_WHITE);
-    tft.setCursor(0, 0);
+    tft.setCursor(10, 10);
+    tft.setTextSize(1);
     tft.setTextColor(ILI9341_BLACK);
     tft.println("Druk op Z om de game te starten.");
 }
