@@ -51,6 +51,11 @@ inline uint8_t coordsToIndex(int8_t row, int8_t col) {
     return (uint8_t) (row * GRID_SIZE + col);
 }
 
+/**
+ * Opens a field and returns its value.
+ * @param index The index of the field to open.
+ * @return The value of the opened field.
+ */
 inline uint8_t openFieldAndGetValue(uint8_t index) {
     uint8_t byteIndex = index / 8;
     uint8_t bitIndex = index % 8;
