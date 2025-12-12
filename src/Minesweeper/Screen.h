@@ -13,5 +13,6 @@ void drawOpen(uint8_t index, uint8_t value);
 void drawClosed(uint8_t index);
 void drawCursor(uint8_t index);
 void drawMenu();
+void segmentGetal(uint8_t value);
 
 #endif // MINESWEEPER_SCREEN_H

@@ -12,6 +12,21 @@ Adafruit_ImageReader reader(SD);
 
 bool hasSDCard = false;
 
+uint8_t segmentGetal[5] = {
+    0b11000000, //0
+    0b11111001, //1
+    0b10100100, //2
+    0b10110000, //3
+    0b11111111, //uit
+
+    // 0b10011001, //4
+    // 0b10010010, //5
+    // 0b10000010, //6
+    // 0b11111000, //7
+    // 0b10000000, //8
+    // 0b10010000, //9
+};
+
 /**
  * Initializes the screen.
  */
@@ -30,6 +45,12 @@ void initScreen() {
 
         _delay_ms(1000);
     }
+}
+
+void updateDisplay(uint8_t value) {
+    Wire.beginTransmission(0x21); //7-segment display aanpassen
+    Wire.write(segmentGetal[value]);
+    Wire.endTransmission();
 }
 
 /**
