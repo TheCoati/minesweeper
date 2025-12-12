@@ -181,8 +181,10 @@ void drawField() {
 void drawCursor(uint8_t index) {
     uint8_t x, y;
     indexToCoord(index, x, y);
-
-    tft.fillCircle(x + 12, y + 12, 6, ILI9341_RED);
+    tft.fillRect(x, y, 24, 3, ILI9341_BLACK); //bovenste lijn
+    tft.fillRect(x, y + 21, 24, 3, ILI9341_BLACK); //onderste lijn
+    tft.fillRect(x, y, 3, 24, ILI9341_BLACK); //rechter lijn
+    tft.fillRect(x + 21, y, 3, 24, ILI9341_BLACK); //linker lijn
 }
 
 /**

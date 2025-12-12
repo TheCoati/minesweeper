@@ -221,6 +221,8 @@ void openField(uint8_t index) {
 
     uint8_t fieldValue = openFieldAndGetValue(index);
 
+    drawCursor(index); //schrijf cursor er overheen zodat deze nog te zien is.
+
     // Open neighboring fields if the field is empty
     if (fieldValue == 0) {
         openEmptyNeighbors(index);
