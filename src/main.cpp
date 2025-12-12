@@ -13,7 +13,7 @@ int main() {
     init();
     initScreen();
     initController();
-    segmentGetal(2);
+    updateDisplay(4);
     drawMenu();
 
     while (true) {
