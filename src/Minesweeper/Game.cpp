@@ -233,17 +233,22 @@ void openField(uint8_t index) {
     if (fieldValue == 0) {
         openEmptyNeighbors(index);
     } else if (fieldValue == 9) {
-        // TODO: game over code
-        _delay_ms(1000);
-        livesLeft--;
-        updateDisplay(livesLeft);
-        resetField();
+        if (livesLeft == 0) { // Game over TODO: Deze code is niet ideaal, moet even mooi schermpie en netjes afsluiten bij
+            resetField();
+            destroyGame();
+        } else {
+            _delay_ms(1000);
+            livesLeft--;
+            updateDisplay(livesLeft);
+            resetField();
+        }
+        // TODO: betere game over code
     }
     
     // a;
     if (fieldsOpened >= (TOTAL_FIELDS - minesCount))
     {
-        // TODO: game over code
+        // TODO: betere game over code
         _delay_ms(1000);
         resetField();
     }
