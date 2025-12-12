@@ -13,7 +13,7 @@ int main() {
     init();
     initScreen();
     initController();
-    updateDisplay(4);
+    updateDisplay(10); //10 is uit.
     drawMenu();
 
     while (true) {
