@@ -11,6 +11,8 @@ uint8_t fieldRegister[FIELD_REGISTER_SIZE];
 uint8_t currentSeed = 0;
 uint8_t cursorPosition = 0;
 uint8_t minesCount = 10;
+uint8_t fieldsOpened = 0;
+
 
 extern void destroyGame();
 extern void handleInput();
@@ -62,6 +64,7 @@ inline uint8_t openFieldAndGetValue(uint8_t index) {
 
     // Open the field
     fieldRegister[byteIndex] |= (0x80 >> bitIndex);
+    fieldsOpened++;
 
     uint8_t fieldValue = getFieldValue(index);
 
@@ -225,6 +228,14 @@ void openField(uint8_t index) {
     if (fieldValue == 0) {
         openEmptyNeighbors(index);
     } else if (fieldValue == 9) {
+        // TODO: game over code
+        _delay_ms(1000);
+        resetField();
+    }
+    
+    // a;
+    if (fieldsOpened >= (TOTAL_FIELDS - minesCount))
+    {
         // TODO: game over code
         _delay_ms(1000);
         resetField();
@@ -399,7 +410,8 @@ void onTick() {
  * Resets the field to its initial state.
  */
 void resetField() {
-    cursorPosition = 0;
+    cursorPosition = TOTAL_FIELDS / 2;
+    fieldsOpened = 0;
 
     for (uint8_t i = 0; i < FIELD_REGISTER_SIZE; i++) {
         fieldRegister[i] = 0;
