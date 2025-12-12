@@ -2,8 +2,8 @@
 
 #define GRID_SIZE 9
 #define TOTAL_FIELDS (GRID_SIZE * GRID_SIZE)
-#define GRID_REGISTER_SIZE 41 // 81 fields, 2 per byte = 41 bytes (1 nibble unused)
-#define FIELD_REGISTER_SIZE 11 // 81 fields, 1 bit per field = 11 bytes (7 bits unused)
+#define GRID_REGISTER_SIZE 41   // 81 fields, 2 per byte = 41 bytes (1 nibble unused)
+#define FIELD_REGISTER_SIZE 11  // 81 fields, 1 bit per field = 11 bytes (7 bits unused)
 
 uint8_t active = true;
 uint8_t gridRegister[GRID_REGISTER_SIZE];
@@ -36,7 +36,7 @@ inline uint8_t mutateSeed(uint8_t seed) {
  * @param row The row coordinate.
  * @param col The column coordinate.
  */
-inline void indexToCoords(uint8_t index, int8_t *row, int8_t *col) {
+inline void indexToCoords(uint8_t index, int8_t* row, int8_t* col) {
     *row = index / GRID_SIZE;
     *col = index % GRID_SIZE;
 }
@@ -48,7 +48,7 @@ inline void indexToCoords(uint8_t index, int8_t *row, int8_t *col) {
  * @return The 1D index.
  */
 inline uint8_t coordsToIndex(int8_t row, int8_t col) {
-    return (uint8_t) (row * GRID_SIZE + col);
+    return (uint8_t)(row * GRID_SIZE + col);
 }
 
 /**
@@ -98,7 +98,7 @@ void incrementFieldValue(uint8_t index) {
     uint8_t value = getFieldValue(index);
 
     if (value >= 8)
-        return; // Do not increment if value is already 8 or a mine
+        return;  // Do not increment if the value is already 8 or a mine
 
     // Check if high or low nibble
     bool isHighNibble = (index % 2 == 0);
@@ -129,11 +129,11 @@ void incrementFields() {
             // Loop through 3x3 grid around the mine
             for (int8_t r = row - 1; r <= row + 1; r++) {
                 if (r < 0 || r >= 9)
-                    continue; // Skip out of bounds rows
+                    continue;  // Skip out of bounds rows
 
                 for (int8_t c = col - 1; c <= col + 1; c++) {
                     if (c < 0 || c >= 9)
-                        continue; // Skip out of bounds columns
+                        continue;  // Skip out of bounds columns
 
                     uint8_t neighborPos = coordsToIndex(r, c);
 
@@ -151,7 +151,7 @@ void incrementFields() {
  * @param seed The seed to use for mine placement.
  */
 void fillGrid() {
-    // Fill grid with empty fields
+    // Fill the grid with empty fields
     for (uint8_t i = 0; i < GRID_REGISTER_SIZE; i++) {
         gridRegister[i] = 0;
     }
@@ -159,7 +159,7 @@ void fillGrid() {
     uint8_t minesPlaced = 0;
 
     while (minesPlaced < minesCount) {
-        // Generate random position for mine
+        // Generate a random position for mine
         currentSeed = mutateSeed(currentSeed);
         uint8_t pos = currentSeed % TOTAL_FIELDS;
 
@@ -170,20 +170,20 @@ void fillGrid() {
         bool isHighNibble = (pos % 2 == 0);
 
         if (isHighNibble) {
-            // Get value of the nibble and check if it's already a mine
+            // Get the value of the nibble and check if it's already a mine
             uint8_t isMine = (gridRegister[byteIndex] & 0x90);
 
             if (isMine == 0) {
-                // Place mine on given position
+                // Place mine on a given position
                 gridRegister[byteIndex] |= 0x90;
                 minesPlaced++;
             }
         } else {
-            // Get value of the nibble and check if it's already a mine
+            // Get the value of the nibble and check if it's already a mine
             uint8_t isMine = (gridRegister[byteIndex] & 0x09);
 
             if (isMine == 0) {
-                // Place mine on given position
+                // Place mine on a given position
                 gridRegister[byteIndex] |= 0x09;
                 minesPlaced++;
             }
@@ -239,23 +239,23 @@ void openEmptyNeighbors(uint8_t index) {
     if (index > TOTAL_FIELDS - 1)
         return;
 
-    // A simple queue to hold field indices to visit.
+    // Queue to hold field indices to visit
     uint8_t queue[TOTAL_FIELDS];
     uint8_t queueStart = 0;
     uint8_t queueEnd = 0;
 
-    // Add the initial field to the queue.
+    // Add the initial field to the queue
     queue[queueEnd++] = index;
 
     while (queueStart != queueEnd) {
         // Dequeue a field index.
         uint8_t currentIndex = queue[queueStart++];
 
-        // Get coordinates for the current field.
+        // Get coordinates for the current field
         int8_t row, col;
         indexToCoords(currentIndex, &row, &col);
 
-        // Iterate through all neighbors (3x3 grid).
+        // Iterate through all neighbors (3x3 grid)
         for (int8_t r = row - 1; r <= row + 1; r++) {
             if (r < 0 || r >= GRID_SIZE)
                 continue;
@@ -266,14 +266,14 @@ void openEmptyNeighbors(uint8_t index) {
 
                 uint8_t neighborIndex = coordsToIndex(r, c);
 
-                // Skip if the neighbor is already open.
+                // Skip if the neighbor is already open
                 if (isFieldOpen(neighborIndex))
                     continue;
 
-                // Open the neighbor field.
+                // Open the neighbor field
                 uint8_t neighborValue = openFieldAndGetValue(neighborIndex);
 
-                // If the neighbor is also empty, add it to the queue to process its neighbors.
+                // If the neighbor is also empty, add it to the queue to process its neighbors
                 if (neighborValue == 0) {
                     queue[queueEnd++] = neighborIndex;
                 }
@@ -384,7 +384,7 @@ void handleInput() {
     }
 
     if (isSecondaryPressed()) {
-        destroyGame(); // Todo: Remove reset on final product
+        destroyGame();  // Todo: Remove reset on final product
     }
 }
 
@@ -426,6 +426,7 @@ void startGame(uint8_t seed) {
 
     active = true;
 
+    // Todo: Move game ticking back to main loop?
     while (active) {
         onTick();
     }
@@ -439,4 +440,3 @@ void destroyGame() {
 
     drawMenu();
 }
-
