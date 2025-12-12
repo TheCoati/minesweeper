@@ -36,7 +36,7 @@ inline uint8_t mutateSeed(uint8_t seed) {
  * @param row The row coordinate.
  * @param col The column coordinate.
  */
-inline void indexToCoords(uint8_t index, int8_t* row, int8_t* col) {
+inline void indexToCoords(uint8_t index, int8_t *row, int8_t *col) {
     *row = index / GRID_SIZE;
     *col = index % GRID_SIZE;
 }
@@ -48,7 +48,7 @@ inline void indexToCoords(uint8_t index, int8_t* row, int8_t* col) {
  * @return The 1D index.
  */
 inline uint8_t coordsToIndex(int8_t row, int8_t col) {
-    return (uint8_t)(row * GRID_SIZE + col);
+    return (uint8_t) (row * GRID_SIZE + col);
 }
 
 /**

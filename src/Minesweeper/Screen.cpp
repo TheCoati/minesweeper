@@ -38,7 +38,7 @@ void initScreen() {
  * @param x The x coordinate of the index.
  * @param y The y coordinate of the index.
  */
-inline void indexToCoord(uint8_t index, uint8_t& x, uint8_t& y) {
+inline void indexToCoord(uint8_t index, uint8_t &x, uint8_t &y) {
     x = index % GRID_SIZE;
     y = index / GRID_SIZE;
 
