@@ -197,4 +197,5 @@ void drawMenu() {
     tft.setTextSize(1);
     tft.setTextColor(ILI9341_BLACK);
     tft.println("Druk op Z om de game te starten.");
+
 }

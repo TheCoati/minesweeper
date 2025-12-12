@@ -5,6 +5,8 @@
 #define GRID_REGISTER_SIZE 41   // 81 fields, 2 per byte = 41 bytes (1 nibble unused)
 #define FIELD_REGISTER_SIZE 11  // 81 fields, 1 bit per field = 11 bytes (7 bits unused)
 
+#define LIVES 2
+
 uint8_t active = true;
 uint8_t gridRegister[GRID_REGISTER_SIZE];
 uint8_t fieldRegister[FIELD_REGISTER_SIZE];
@@ -12,6 +14,7 @@ uint8_t currentSeed = 0;
 uint8_t cursorPosition = 0;
 uint8_t minesCount = 10;
 uint8_t fieldsOpened = 0;
+uint8_t livesLeft = LIVES;
 
 
 extern void destroyGame();
@@ -232,6 +235,8 @@ void openField(uint8_t index) {
     } else if (fieldValue == 9) {
         // TODO: game over code
         _delay_ms(1000);
+        livesLeft--;
+        updateDisplay(livesLeft);
         resetField();
     }
     
@@ -425,6 +430,8 @@ void resetField() {
         redrawTile(i);
     }
 
+    updateDisplay(livesLeft);
+
     drawCursor(cursorPosition);
 }
 
@@ -453,4 +460,6 @@ void destroyGame() {
     active = false;
 
     drawMenu();
+    livesLeft = LIVES;
+    updateDisplay(10);
 }
