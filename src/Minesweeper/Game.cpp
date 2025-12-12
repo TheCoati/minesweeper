@@ -111,7 +111,7 @@ void incrementFieldValue(uint8_t index) {
     byteValue &= (isHighNibble) ? 0x0F : 0xF0;
     byteValue |= (isHighNibble) ? value << 4 : value;
 
-    // Write local value back to grid
+    // Write local value back to the grid
     gridRegister[index / 2] = byteValue;
 }
 
@@ -133,7 +133,7 @@ void incrementFields() {
 
                 for (int8_t c = col - 1; c <= col + 1; c++) {
                     if (c < 0 || c >= 9)
-                        continue;  // Skip out of bounds columns
+                        continue;  // Skip out-of-bounds columns
 
                     uint8_t neighborPos = coordsToIndex(r, c);
 
