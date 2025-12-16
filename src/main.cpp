@@ -1,3 +1,4 @@
+#include <Wire.h>
 #include <Minenet.h>
 #include "Minesweeper/Game.h"
 #include "Minesweeper/Controller.h"
