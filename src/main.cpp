@@ -25,5 +25,13 @@ int main() {
         if (isPrimaryPressed()) {
             startGame(globalSeed);
         }
+
+        if (Minenet.available()) {
+            MinenetPacket packet = Minenet.read();
+
+            if (packet.opCode == 0x04) {
+                startGame(packet.payload);
+            }
+        }
     }
 }

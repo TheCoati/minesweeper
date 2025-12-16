@@ -469,6 +469,8 @@ void startGame(uint8_t seed) {
 
     active = true;
 
+    Minenet.send(0, 0, 0x04, seed);
+
     // Todo: Move game ticking back to main loop?
     while (active) {
         onTick();
