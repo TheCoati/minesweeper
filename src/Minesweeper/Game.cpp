@@ -17,7 +17,6 @@ uint8_t minesCount = 10;
 uint8_t fieldsOpened = 0;
 uint8_t livesLeft = LIVES;
 
-
 extern void destroyGame();
 extern void handleInput();
 extern uint8_t getFieldValue(uint8_t);
@@ -410,6 +409,7 @@ void handleInput() {
 
     if (isPrimaryPressed()) {
         openField(cursorPosition);
+        Minenet.send(0, 0, 0x03, cursorPosition);
     }
 
     if (isSecondaryPressed()) {
@@ -422,6 +422,17 @@ void handleInput() {
  */
 void onTick() {
     handleInput();
+
+    if (Minenet.available()) {
+        MinenetPacket packet = Minenet.read();
+        if (packet.opCode == 0x02) {
+            moveCursorTo(packet.payload);
+        }
+
+        if (packet.opCode == 0x03) {
+            openField(packet.payload);
+        }
+    }
 }
 
 /**
@@ -461,13 +472,6 @@ void startGame(uint8_t seed) {
     // Todo: Move game ticking back to main loop?
     while (active) {
         onTick();
-
-        if (Minenet.available()) {
-            MinenetPacket packet = Minenet.read();
-            if (packet.opCode == 0x02) {
-                moveCursorTo(packet.payload);
-            }
-        }
     }
 }
 

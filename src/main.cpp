@@ -8,7 +8,6 @@ uint8_t globalSeed = 0;
 int main() {
     // Libraries
     Wire.begin();
-    Minenet.begin();
 
     // Minesweeper
     init();
@@ -16,6 +15,8 @@ int main() {
     initController();
     updateDisplay(10); //10 is uit.
     drawMenu();
+
+    Minenet.begin();
 
     while (true) {
         globalSeed++;
