@@ -97,14 +97,13 @@ void receive(MinenetPacket packet) {
             if (packet.payload == ackOpCode) {
                 ackOpCode = 0;
             }
+            break;
         case 0x02:
             moveCursorTo(packet.payload);
             break;
         case 0x03:
             openField(packet.payload);
             break;
-        case 0x04:
-            // Handled from main
     }
 }
 
