@@ -453,12 +453,6 @@ void handleInput() {
  */
 void onTick() {
     handleInput();
-
-    if (Minenet.available()) {
-        MinenetPacket packet = Minenet.read();
-
-        receive(packet);
-    }
 }
 
 /**
@@ -493,6 +487,12 @@ void loadGame(uint8_t seed) {
 
     // Todo: Move game ticking back to main loop?
     while (active) {
+        if (Minenet.available()) {
+            MinenetPacket packet = Minenet.read();
+
+            receive(packet);
+        }
+
         if (ackOpCode != 0) {
             continue;
         }
