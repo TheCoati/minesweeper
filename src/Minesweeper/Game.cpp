@@ -80,7 +80,7 @@ inline uint8_t openFieldAndGetValue(uint8_t index) {
 }
 
 void send(uint8_t opCode, uint8_t payload) {
-    if (opCode == 0x03 || opCode == 0x04) {
+    if (opCode == 0x02 || opCode == 0x03 || opCode == 0x04) {
         ackOpCode = opCode;
     }
 
@@ -88,10 +88,6 @@ void send(uint8_t opCode, uint8_t payload) {
 }
 
 void receive(MinenetPacket packet) {
-    if (packet.opCode == 0x03 || packet.opCode == 0x04) {
-        Minenet.send(clientId, 0, 0x01, packet.payload);
-    }
-
     switch (packet.opCode) {
         case 0x01:
             if (packet.payload == ackOpCode) {
@@ -100,9 +96,11 @@ void receive(MinenetPacket packet) {
             break;
         case 0x02:
             moveCursorTo(packet.payload);
+            Minenet.send(clientId, 0, 0x01, packet.payload);
             break;
         case 0x03:
             openField(packet.payload);
+            Minenet.send(clientId, 0, 0x01, packet.payload);
             break;
     }
 }
