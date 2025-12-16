@@ -16,6 +16,8 @@ uint8_t cursorPosition = 0;
 uint8_t minesCount = 10;
 uint8_t fieldsOpened = 0;
 uint8_t livesLeft = LIVES;
+uint8_t clientId = 0;
+uint8_t ackOpCode = 0;
 
 extern void destroyGame();
 extern void handleInput();
@@ -23,6 +25,7 @@ extern uint8_t getFieldValue(uint8_t);
 extern void openField(uint8_t);
 extern void openEmptyNeighbors(uint8_t);
 extern void resetField();
+extern void moveCursorTo(uint8_t);
 
 /**
  * Mutates the seed to randomize mine placement.
@@ -74,6 +77,35 @@ inline uint8_t openFieldAndGetValue(uint8_t index) {
     drawOpen(index, fieldValue);
 
     return fieldValue;
+}
+
+void send(uint8_t opCode, uint8_t payload) {
+    if (opCode == 0x03 || opCode == 0x04) {
+        ackOpCode = opCode;
+    }
+
+    Minenet.send(clientId, 0, opCode, payload);
+}
+
+void receive(MinenetPacket packet) {
+    if (packet.opCode == 0x03 || packet.opCode == 0x04) {
+        Minenet.send(clientId, 0, 0x01, packet.payload);
+    }
+
+    switch (packet.opCode) {
+        case 0x01:
+            if (packet.payload == ackOpCode) {
+                ackOpCode = 0;
+            }
+        case 0x02:
+            moveCursorTo(packet.payload);
+            break;
+        case 0x03:
+            openField(packet.payload);
+            break;
+        case 0x04:
+            // Handled from main
+    }
 }
 
 /**
@@ -425,13 +457,8 @@ void onTick() {
 
     if (Minenet.available()) {
         MinenetPacket packet = Minenet.read();
-        if (packet.opCode == 0x02) {
-            moveCursorTo(packet.payload);
-        }
 
-        if (packet.opCode == 0x03) {
-            openField(packet.payload);
-        }
+        receive(packet);
     }
 }
 
@@ -457,13 +484,8 @@ void resetField() {
     drawCursor(cursorPosition);
 }
 
-/**
- * Starts the game with a given seed.
- * @param seed The seed to use for mine placement.
- */
-void startGame(uint8_t seed) {
+void loadGame(uint8_t seed) {
     currentSeed = seed;
-    Minenet.send(0, 0, 0x04, seed);
 
     drawField();
     resetField();
@@ -472,8 +494,30 @@ void startGame(uint8_t seed) {
 
     // Todo: Move game ticking back to main loop?
     while (active) {
+        if (ackOpCode != 0) {
+            continue;
+        }
+
         onTick();
     }
+}
+
+void joinGame(uint8_t seed) {
+    clientId = 1;
+
+    loadGame(seed);
+}
+
+/**
+ * Starts the game with a given seed.
+ * @param seed The seed to use for mine placement.
+ */
+void startGame(uint8_t seed) {
+    clientId = 0;
+
+    send(0x04, seed);
+
+    loadGame(seed);
 }
 
 /**

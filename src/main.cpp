@@ -30,7 +30,8 @@ int main() {
             MinenetPacket packet = Minenet.read();
 
             if (packet.opCode == 0x04) {
-                startGame(packet.payload);
+                Minenet.send(1, 0, 0x01, packet.payload);
+                joinGame(packet.payload);
             }
         }
     }

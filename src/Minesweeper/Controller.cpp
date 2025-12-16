@@ -56,7 +56,7 @@ ControllerDirection getJoystick() {
  * @return State of the Z button.
  */
 bool isPrimaryPressed() {
-    if (!Nunchuk.getState(NUNCHUK_ADDRESS)) {
+    if (waitForNewInput && !Nunchuk.getState(NUNCHUK_ADDRESS)) {
         return false;
     }
 
@@ -68,7 +68,7 @@ bool isPrimaryPressed() {
  * @return State of the C button.
  */
 bool isSecondaryPressed() {
-    if (!Nunchuk.getState(NUNCHUK_ADDRESS)) {
+    if (waitForNewInput && !Nunchuk.getState(NUNCHUK_ADDRESS)) {
         return false;
     }
 

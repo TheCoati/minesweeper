@@ -5,5 +5,6 @@
 #include "Controller.h"
 
 void startGame(uint8_t seed);
+void joinGame(uint8_t seed);
 
 #endif // MINESWEEPER_GAME_H
