@@ -408,8 +408,8 @@ void handleInput() {
     }
 
     if (isPrimaryPressed()) {
-        openField(cursorPosition);
         Minenet.send(0, 0, 0x03, cursorPosition);
+        openField(cursorPosition);
     }
 
     if (isSecondaryPressed()) {
@@ -463,13 +463,12 @@ void resetField() {
  */
 void startGame(uint8_t seed) {
     currentSeed = seed;
+    Minenet.send(0, 0, 0x04, seed);
 
     drawField();
     resetField();
 
     active = true;
-
-    Minenet.send(0, 0, 0x04, seed);
 
     // Todo: Move game ticking back to main loop?
     while (active) {
