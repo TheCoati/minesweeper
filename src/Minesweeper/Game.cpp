@@ -5,12 +5,17 @@
 #define GRID_REGISTER_SIZE 41   // 81 fields, 2 per byte = 41 bytes (1 nibble unused)
 #define FIELD_REGISTER_SIZE 11  // 81 fields, 1 bit per field = 11 bytes (7 bits unused)
 
+#define LIVES 2
+
 uint8_t active = true;
 uint8_t gridRegister[GRID_REGISTER_SIZE];
 uint8_t fieldRegister[FIELD_REGISTER_SIZE];
 uint8_t currentSeed = 0;
 uint8_t cursorPosition = 0;
 uint8_t minesCount = 10;
+uint8_t fieldsOpened = 0;
+uint8_t livesLeft = LIVES;
+
 
 extern void destroyGame();
 extern void handleInput();
@@ -62,6 +67,7 @@ inline uint8_t openFieldAndGetValue(uint8_t index) {
 
     // Open the field
     fieldRegister[byteIndex] |= (0x80 >> bitIndex);
+    fieldsOpened++;
 
     uint8_t fieldValue = getFieldValue(index);
 
@@ -221,11 +227,28 @@ void openField(uint8_t index) {
 
     uint8_t fieldValue = openFieldAndGetValue(index);
 
+    drawCursor(index); //schrijf cursor er overheen zodat deze nog te zien is.
+
     // Open neighboring fields if the field is empty
     if (fieldValue == 0) {
         openEmptyNeighbors(index);
     } else if (fieldValue == 9) {
-        // TODO: game over code
+        if (livesLeft == 0) { // Game over TODO: Deze code is niet ideaal, moet even mooi schermpie en netjes afsluiten bij
+            resetField();
+            destroyGame();
+        } else {
+            _delay_ms(1000);
+            livesLeft--;
+            updateDisplay(livesLeft);
+            resetField();
+        }
+        // TODO: betere game over code
+    }
+    
+    // a;
+    if (fieldsOpened >= (TOTAL_FIELDS - minesCount))
+    {
+        // TODO: betere game over code
         _delay_ms(1000);
         resetField();
     }
@@ -399,7 +422,8 @@ void onTick() {
  * Resets the field to its initial state.
  */
 void resetField() {
-    cursorPosition = 0;
+    cursorPosition = TOTAL_FIELDS / 2;
+    fieldsOpened = 0;
 
     for (uint8_t i = 0; i < FIELD_REGISTER_SIZE; i++) {
         fieldRegister[i] = 0;
@@ -410,6 +434,8 @@ void resetField() {
     for (uint8_t i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
         redrawTile(i);
     }
+
+    updateDisplay(livesLeft);
 
     drawCursor(cursorPosition);
 }
@@ -439,4 +465,6 @@ void destroyGame() {
     active = false;
 
     drawMenu();
+    livesLeft = LIVES;
+    updateDisplay(10);
 }

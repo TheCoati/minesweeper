@@ -12,6 +12,20 @@ Adafruit_ImageReader reader(SD);
 
 bool hasSDCard = false;
 
+uint8_t segmentGetal[11] = {
+    0b11000000, //0
+    0b11111001, //1
+    0b10100100, //2
+    0b10110000, //3
+    0b10011001, //4
+    0b10010010, //5
+    0b10000010, //6
+    0b11111000, //7
+    0b10000000, //8
+    0b10010000, //9
+    0b11111111, //uit
+};
+
 /**
  * Initializes the screen.
  */
@@ -30,6 +44,12 @@ void initScreen() {
 
         _delay_ms(1000);
     }
+}
+
+void updateDisplay(uint8_t value) {
+    Wire.beginTransmission(0x21); //7-segment display aanpassen
+    Wire.write(segmentGetal[value]);
+    Wire.endTransmission();
 }
 
 /**
@@ -161,8 +181,10 @@ void drawField() {
 void drawCursor(uint8_t index) {
     uint8_t x, y;
     indexToCoord(index, x, y);
-
-    tft.fillCircle(x + 12, y + 12, 6, ILI9341_RED);
+    tft.fillRect(x, y, 24, 3, ILI9341_BLACK); //bovenste lijn
+    tft.fillRect(x, y + 21, 24, 3, ILI9341_BLACK); //onderste lijn
+    tft.fillRect(x, y, 3, 24, ILI9341_BLACK); //rechter lijn
+    tft.fillRect(x + 21, y, 3, 24, ILI9341_BLACK); //linker lijn
 }
 
 /**
@@ -175,4 +197,5 @@ void drawMenu() {
     tft.setTextSize(1);
     tft.setTextColor(ILI9341_BLACK);
     tft.println("Druk op Z om de game te starten.");
+
 }

@@ -1,7 +1,7 @@
 #include <Wire.h>
 #include <Minenet.h>
-#include "Minesweeper/Game.h"
 #include "Minesweeper/Controller.h"
+#include "Minesweeper/Game.h"
 
 uint8_t globalSeed = 0;
 
@@ -14,7 +14,7 @@ int main() {
     init();
     initScreen();
     initController();
-
+    updateDisplay(10); //10 is uit.
     drawMenu();
 
     while (true) {
