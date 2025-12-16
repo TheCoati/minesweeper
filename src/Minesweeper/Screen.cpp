@@ -159,7 +159,7 @@ void drawClosed(uint8_t index) {
         reader.drawBMP("/slot.bmp", tft, x, y);
         return;
     } else {
-        tft.fillRect(x, y, 24, 24, ILI9341_BLACK);
+    tft.fillRect(x, y, 24, 24, ILI9341_LIGHTGREY);
     }
 }
 

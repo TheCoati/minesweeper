@@ -19,7 +19,7 @@ void initController() {
 ControllerDirection getJoystick() {
     if (!Nunchuk.getState(NUNCHUK_ADDRESS)) {
         // Todo: Alert missing input? [MOSCOW: C]
-        waitForNewInput = true;
+        waitForNewInput = true ;
         return direction = IDLE;
     }
 
