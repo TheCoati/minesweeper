@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "Minenet.h"
 
 #define GRID_SIZE 9
 #define TOTAL_FIELDS (GRID_SIZE * GRID_SIZE)
@@ -344,6 +345,7 @@ void moveLeft() {
         return;
     }
 
+    Minenet.send(0, 0, 0x02, cursorPosition - 1);
     moveCursorTo(cursorPosition - 1);
 }
 
@@ -355,6 +357,7 @@ void moveRight() {
         return;
     }
 
+    Minenet.send(0, 0, 0x02, cursorPosition + 1);
     moveCursorTo(cursorPosition + 1);
 }
 
@@ -366,6 +369,7 @@ void moveUp() {
         return;
     }
 
+    Minenet.send(0, 0, 0x02, cursorPosition - GRID_SIZE);
     moveCursorTo(cursorPosition - GRID_SIZE);
 }
 
@@ -376,6 +380,8 @@ void moveDown() {
     if (cursorPosition / GRID_SIZE == GRID_SIZE - 1) {
         return;
     }
+
+    Minenet.send(0, 0, 0x02, cursorPosition + GRID_SIZE);
     moveCursorTo(cursorPosition + GRID_SIZE);
 }
 
@@ -455,6 +461,13 @@ void startGame(uint8_t seed) {
     // Todo: Move game ticking back to main loop?
     while (active) {
         onTick();
+
+        if (Minenet.available()) {
+            MinenetPacket packet = Minenet.read();
+            if (packet.opCode == 0x02) {
+                moveCursorTo(packet.payload);
+            }
+        }
     }
 }
 
