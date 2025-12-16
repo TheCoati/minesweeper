@@ -1,0 +1,16 @@
+#ifndef MINESWEEPER_SCENEMANAGER_H
+#define MINESWEEPER_SCENEMANAGER_H
+
+#include "Scene.h"
+
+class SceneManager {
+public:
+    void tick();
+    void switchScene(Scene* newScene);
+private:
+    Scene* currentScene = nullptr;
+};
+
+extern SceneManager SceneManager;
+
+#endif //MINESWEEPER_SCENEMANAGER_H
