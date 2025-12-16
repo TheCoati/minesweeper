@@ -1,0 +1,8 @@
+//
+// Created by Kevin on 16 Dec 2025.
+//
+
+#ifndef MINESWEEPER_NETWORKING_H
+#define MINESWEEPER_NETWORKING_H
+
+#endif //MINESWEEPER_NETWORKING_H
