@@ -7,10 +7,6 @@ void SceneManager::tick() {
 }
 
 void SceneManager::switchScene(Scene *newScene) {
-    if (newScene == this->currentScene) {
-        return;
-    }
-
     if (this->currentScene != nullptr) {
         this->currentScene->destroy();
 

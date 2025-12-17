@@ -1,11 +1,11 @@
-#include "game/Minesweeper.h"
-#include <avr/interrupt.h>
 #include <Wire.h>
+#include "Arduino.h"
+#include "game/Minesweeper.h"
 
 class Minesweeper Game;
 
 int main() {
-    sei();
+    init();
 
     Wire.begin();
     Game.begin();

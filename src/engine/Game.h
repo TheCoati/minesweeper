@@ -5,7 +5,7 @@
 
 class Game {
 public:
-    Game(Scene *scene);
+    Game() = default;
     virtual ~Game() = default;
 
     void begin();

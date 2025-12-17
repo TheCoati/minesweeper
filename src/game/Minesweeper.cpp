@@ -1,12 +1,8 @@
 #include "Minesweeper.h"
 #include "game/scenes/MainMenuScene.h"
 
-Minesweeper::Minesweeper() : Game(scene) {
-
-}
-
 void Minesweeper::onBegin() {
-
+    SceneManager.switchScene(new MainMenuScene());
 }
 
 void Minesweeper::onTick() {

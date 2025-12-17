@@ -5,7 +5,7 @@
 
 class Minesweeper : public Game {
 public:
-    Minesweeper();
+    Minesweeper() = default;
     ~Minesweeper() override = default;
 
 protected:
