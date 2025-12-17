@@ -1,8 +1,8 @@
 #ifndef MINESWEEPER_MAIN_MENU_SCENE_H
 #define MINESWEEPER_MAIN_MENU_SCENE_H
 
-#include "../../engine/Scene.h"
-#include "../Screen.h"
+#include "engine/Scene.h"
+#include "game/Screen.h"
 
 class MainMenuScene : public Scene {
 protected:

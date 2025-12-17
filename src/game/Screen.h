@@ -10,6 +10,8 @@ extern Adafruit_ILI9341 tft;
 class Screen {
 public:
     void begin();
+private:
+    bool hasSDCard = false;
 };
 
 extern Screen Screen;

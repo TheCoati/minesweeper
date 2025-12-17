@@ -1,7 +1,3 @@
-//
-// Created by Kevin on 16 Dec 2025.
-//
-
 #include <string.h>
 #include <Nunchuk.h>
 

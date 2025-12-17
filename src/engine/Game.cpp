@@ -3,7 +3,8 @@
 #include "Controller.h"
 
 void Game::begin() {
-//    Controller.begin();
+
+    Controller.begin();
 //    Networking.begin();
 
     this->onBegin();

@@ -1,7 +1,7 @@
 #include "MPMenuScene.h"
+
 #include "engine/Controller.h"
 #include "engine/SceneManager.h"
-
 #include "MainMenuScene.h"
 
 void MPMenuScene::onBegin() {
