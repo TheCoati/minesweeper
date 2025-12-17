@@ -8,8 +8,6 @@
 #ifndef MINESWEEPER_CONTROLLER_H
 #define MINESWEEPER_CONTROLLER_H
 
-typedef void (*ControllerCallback)();
-
 enum ControllerAction {
     IDLE = 0,
     LEFT = 1,
@@ -24,12 +22,12 @@ class Controller {
 public:
     void begin();
     void tick();
-    void registerCallback(ControllerAction action, ControllerCallback callback);
-    void clearCallbacks();
+    bool available();
+    ControllerAction read();
 private:
-    void triggerCallback(ControllerAction action);
+    bool newInput = false;
     bool waitForNewInput = true;
-    ControllerCallback callbacks[6];
+    ControllerAction lastAction;
 };
 
 extern Controller Controller;

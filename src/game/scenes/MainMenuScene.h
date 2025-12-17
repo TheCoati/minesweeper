@@ -10,7 +10,7 @@ protected:
     void onTick() override;
     void onDestroy() override;
 private:
-    static void onPrimaryPress();
+    void onPrimaryPress();
     static void onSecondaryPress();
 };
 

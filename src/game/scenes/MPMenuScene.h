@@ -9,6 +9,8 @@ protected:
     void onBegin() override;
     void onTick() override;
     void onDestroy() override;
+private:
+    void onSecondaryPress();
 };
 
 #endif //MINESWEEPER_MP_MENU_SCENE_H

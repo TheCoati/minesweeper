@@ -10,9 +10,8 @@ protected:
     void onBegin() override;
     void onTick() override;
     void onDestroy() override;
-    static void onNetMoveCursor(MinenetPacket packet);
 private:
-
+    void onSecondaryPress();
 };
 
 #endif //MINESWEEPER_GAME_SCENE_H

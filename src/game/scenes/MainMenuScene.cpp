@@ -2,21 +2,34 @@
 #include "engine/Controller.h"
 #include "engine/SceneManager.h"
 
-#include "GameScene.h"
 #include "MPMenuScene.h"
+#include "GameScene.h"
 
 void MainMenuScene::onBegin() {
-    Screen.begin();
+    tft.setCursor(0, 0);
+    tft.fillScreen(ILI9341_BLACK);
+    tft.setTextColor(ILI9341_WHITE);
 
-    tft.println("Z - Singleplayer");
-    tft.println("C - Multiplayer");
-
-    Controller.registerCallback(ControllerAction::PRIMARY, MainMenuScene::onPrimaryPress);
-    Controller.registerCallback(ControllerAction::SECONDARY, MainMenuScene::onSecondaryPress);
+    tft.println("Main Menu");
+    tft.println("[Z] - Singleplayer");
+    tft.println("[C] - Multiplayer");
 }
 
 void MainMenuScene::onTick() {
+    if (Controller.available()) {
+        ControllerAction action = Controller.read();
 
+        switch (action) {
+            case PRIMARY:
+                this->onPrimaryPress();
+                break;
+            case SECONDARY:
+                this->onSecondaryPress();
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 void MainMenuScene::onDestroy() {
@@ -24,11 +37,9 @@ void MainMenuScene::onDestroy() {
 }
 
 void MainMenuScene::onPrimaryPress() {
-    tft.println("TEST 1");
     SceneManager.switchScene(new GameScene());
 }
 
 void MainMenuScene::onSecondaryPress() {
-    tft.println("TEST 2");
     SceneManager.switchScene(new MPMenuScene());
 }

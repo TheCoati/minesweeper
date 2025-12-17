@@ -1,6 +1,8 @@
 #ifndef MINESWEEPER_SCENE_H
 #define MINESWEEPER_SCENE_H
 
+#include "game/Screen.h"
+
 class Scene {
 public:
     Scene() = default;

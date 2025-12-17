@@ -11,6 +11,7 @@ void SceneManager::switchScene(Scene *newScene) {
         this->currentScene->destroy();
 
         delete this->currentScene;
+
         this->currentScene = nullptr;
     }
 
