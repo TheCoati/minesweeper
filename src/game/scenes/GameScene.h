@@ -12,10 +12,13 @@
 #define LIVES 2
 
 class GameScene : public Scene {
+public:
+    GameScene(uint8_t seed);
 protected:
     void onBegin() override;
     void onTick() override;
     void onDestroy() override;
+
 private:
      uint8_t gridRegister[GRID_REGISTER_SIZE];
      uint8_t fieldRegister[FIELD_REGISTER_SIZE];

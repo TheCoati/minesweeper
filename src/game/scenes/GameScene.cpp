@@ -4,6 +4,9 @@
 #include "engine/SceneManager.h"
 #include "MainMenuScene.h"
 
+GameScene::GameScene(uint8_t seed) {
+    currentSeed = seed;
+}
 
 void GameScene::onBegin() {
     drawField();
@@ -76,7 +79,6 @@ void GameScene::openField(uint8_t index) {
         return;
     }
 
-    // a;
     if (fieldsOpened >= (TOTAL_FIELDS - minesCount))
     {
         _delay_ms(1000);
