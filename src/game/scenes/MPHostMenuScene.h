@@ -1,7 +1,10 @@
 #ifndef MINESWEEPER_MP_HOST_MENU_SCENE_H
 #define MINESWEEPER_MP_HOST_MENU_SCENE_H
 
+#include "engine/Controller.h"
 #include "engine/Scene.h"
+#include "engine/SceneManager.h"
+
 #include "game/Screen.h"
 
 class MPHostMenuScene : public Scene {

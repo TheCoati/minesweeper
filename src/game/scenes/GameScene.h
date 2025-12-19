@@ -5,9 +5,9 @@
 #include "engine/Scene.h"
 #include "engine/SceneManager.h"
 
+#include "game/Minesweeper.h"
 #include "game/Screen.h"
 #include "game/SegmentDisplay.h"
-#include "game/Minesweeper.h"
 
 #define GRID_SIZE 9
 #define TOTAL_FIELDS (GRID_SIZE * GRID_SIZE)
@@ -18,6 +18,7 @@
 class GameScene : public Scene {
 public:
    GameScene(uint8_t seed);
+
 protected:
    void onBegin() override;
    void onTick() override;

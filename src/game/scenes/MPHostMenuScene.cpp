@@ -1,9 +1,8 @@
 #include "MPHostMenuScene.h"
 
-#include "engine/Controller.h"
-#include "engine/SceneManager.h"
-#include "MainMenuScene.h"
 #include <Minenet.h>
+
+#include "MainMenuScene.h"
 
 void MPHostMenuScene::onBegin() {
     tft.setCursor(0, 0);
@@ -33,6 +32,12 @@ void MPHostMenuScene::onTick() {
 void MPHostMenuScene::onDestroy() {
 
 }
+
+/*
+ |--------------------------------------------------------------------------
+ | Input Handling
+ |--------------------------------------------------------------------------
+ */
 
 void MPHostMenuScene::onSecondaryPress() {
     SceneManager.switchScene(new MainMenuScene());

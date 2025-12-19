@@ -1,12 +1,10 @@
 #include "MPMenuScene.h"
 
-#include "engine/Controller.h"
-#include "engine/SceneManager.h"
+#include <Minenet.h>
+
 #include "MainMenuScene.h"
 #include "MPHostMenuScene.h"
 #include "GameScene.h"
-#include <Minenet.h>
-#include "game/Minesweeper.h"
 
 void MPMenuScene::onBegin() {
     tft.setCursor(0, 0);
@@ -46,6 +44,12 @@ void MPMenuScene::onTick() {
 void MPMenuScene::onDestroy() {
 
 }
+
+/*
+ |--------------------------------------------------------------------------
+ | Input Handling
+ |--------------------------------------------------------------------------
+ */
 
 void MPMenuScene::onPrimaryPress() {
     SceneManager.switchScene(new MPHostMenuScene());

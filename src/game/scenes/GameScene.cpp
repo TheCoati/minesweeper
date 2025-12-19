@@ -633,6 +633,7 @@ void GameScene::moveDown() {
 
 /**
  * Handle secondary button press.
+ * Returns from the game back to the main menu.
  */
 void GameScene::onSecondaryPress() {
     SceneManager.switchScene(new MainMenuScene());
