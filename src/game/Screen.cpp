@@ -6,7 +6,10 @@
 
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 SdFat SD;
-Adafruit_ImageReader reader(SD);
+
+Screen::Screen(): reader(SD) {
+    //
+}
 
 void Screen::begin() {
     tft.begin();
@@ -15,9 +18,9 @@ void Screen::begin() {
     tft.fillScreen(ILI9341_BLACK);
     tft.println("Booting...");
 
-    hasSDCard = SD.begin(SD_CS, SD_SCK_MHZ(25));
+    sdCard = SD.begin(SD_CS, SD_SCK_MHZ(25));
 
-    if (!hasSDCard) {
+    if (!sdCard) {
         tft.setTextColor(ILI9341_RED);
         tft.println("[ERROR] SD card read failure.");
 
@@ -27,6 +30,14 @@ void Screen::begin() {
     tft.setCursor(0, 0);
     tft.fillScreen(ILI9341_BLACK);
     tft.setTextColor(ILI9341_WHITE);
+}
+
+bool Screen::hasSDCard() {
+    return sdCard;
+}
+
+Adafruit_ImageReader& Screen::getReader() {
+    return reader;
 }
 
 class Screen Screen;

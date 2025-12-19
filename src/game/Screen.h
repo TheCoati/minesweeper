@@ -9,9 +9,13 @@ extern Adafruit_ILI9341 tft;
 
 class Screen {
 public:
+    Screen();
     void begin();
+    bool hasSDCard();
+    Adafruit_ImageReader& getReader();
 private:
-    bool hasSDCard = false;
+    bool sdCard = false;
+    Adafruit_ImageReader reader;
 };
 
 extern Screen Screen;

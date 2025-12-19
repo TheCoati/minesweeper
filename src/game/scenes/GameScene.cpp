@@ -4,13 +4,10 @@
 #include "engine/SceneManager.h"
 #include "MainMenuScene.h"
 
-void GameScene::onBegin() {
-    tft.setCursor(0, 0);
-    tft.fillScreen(ILI9341_BLACK);
-    tft.setTextColor(ILI9341_WHITE);
 
-    tft.println("Game");
-    tft.println("[C] - Exit");
+void GameScene::onBegin() {
+    drawField();
+    resetField();
 }
 
 void GameScene::onTick() {
@@ -18,9 +15,23 @@ void GameScene::onTick() {
         ControllerAction action = Controller.read();
 
         switch (action) {
+            case LEFT:
+                moveLeft();
+                break;
+            case RIGHT:
+                moveRight();
+                break;
+            case UP:
+                moveUp();
+                break;
+            case DOWN:
+                moveDown();
+                break;
             case SECONDARY:
                 this->onSecondaryPress();
                 break;
+            case PRIMARY:
+                openField(cursorPosition);
             default:
                 break;
         }
@@ -28,7 +39,365 @@ void GameScene::onTick() {
 }
 
 void GameScene::onDestroy() {
+    SegmentDisplay.setValue(SegmentDisplay.OFF);
+}
 
+/**
+ * Opens a field at the given index.
+ * @param index The index of the field to open.
+ */
+void GameScene::openField(uint8_t index) {
+    if (index > TOTAL_FIELDS - 1)
+        return;
+
+    if (isFieldOpen(index))
+        return;
+
+    uint8_t fieldValue = openFieldAndGetValue(index);
+
+    drawCursor(index); //schrijf cursor er overheen zodat deze nog te zien is.
+
+    // Open neighboring fields if the field is empty
+    if (fieldValue == 0) {
+        openEmptyNeighbors(index);
+    } else if (fieldValue == 9) {
+        _delay_ms(1000);
+
+        if (livesLeft == 0) {
+            resetField();
+            SceneManager.switchScene(new MainMenuScene()); // Todo: Game over menu
+            return;
+        }
+
+        livesLeft--;
+
+        SegmentDisplay.setValue(livesLeft);
+        resetField();
+        return;
+    }
+
+    // a;
+    if (fieldsOpened >= (TOTAL_FIELDS - minesCount))
+    {
+        _delay_ms(1000);
+        resetField();
+    }
+}
+
+/**
+ * Draws the entire field on the screen at the beginning of the game.
+ */
+void GameScene::drawField() {
+    tft.fillScreen(ILI9341_WHITE);
+
+    if (Screen.hasSDCard()) {
+        Screen.getReader().drawBMP("/outline.bmp", tft, 0, 0);
+    }
+}
+
+
+/**
+ * Mutates the seed to randomize mine placement.
+ * @param seed The current seed.
+ * @return The mutated seed.
+ */
+uint8_t GameScene::mutateSeed(uint8_t seed) {
+    seed = (seed * 13) + 7;
+
+    return seed;
+}
+
+/**
+     * Converts a 1D index to 2D coordinates.
+     * @param index The 1D index.
+     * @param row The row coordinate.
+     * @param col The column coordinate.
+     */
+void GameScene::indexToCoords(uint8_t index, int8_t *row, int8_t *col) {
+    *row = index / GRID_SIZE;
+    *col = index % GRID_SIZE;
+}
+
+void GameScene::indexToScreenCoords(uint8_t index, uint8_t *x, uint8_t *y) {
+    *x = index % GRID_SIZE;
+    *y = index / GRID_SIZE;
+
+    if (Screen.hasSDCard()) {
+        *x *= 24;
+        *y *= 24;
+
+        *x += 4;
+        *y += 4;
+    } else {
+        *x *= 25;
+        *y *= 25;
+    }
+}
+
+/**
+ * Draws the cursor on the screen.
+ * @param index The index of the cursor to draw.
+ */
+void GameScene::drawCursor(uint8_t index) {
+    uint8_t x, y;
+    indexToScreenCoords(index, &x, &y);
+
+    tft.fillRect(x, y, 24, 3, ILI9341_BLACK); //bovenste lijn
+    tft.fillRect(x, y + 21, 24, 3, ILI9341_BLACK); //onderste lijn
+    tft.fillRect(x, y, 3, 24, ILI9341_BLACK); //rechter lijn
+    tft.fillRect(x + 21, y, 3, 24, ILI9341_BLACK); //linker lijn
+}
+
+
+/**
+ * Increments the adjacent mine counts for all fields around each mine.
+ */
+void GameScene::incrementFields() {
+    for (uint8_t index = 0; index < TOTAL_FIELDS; index++) {
+        uint8_t value = getFieldValue(index);
+
+        if (value == 9) {
+            int8_t row, col;
+            indexToCoords(index, &row, &col);
+
+            // Loop through 3x3 grid around the mine
+            for (int8_t r = row - 1; r <= row + 1; r++) {
+                if (r < 0 || r >= 9)
+                    continue;  // Skip out of bounds rows
+
+                for (int8_t c = col - 1; c <= col + 1; c++) {
+                    if (c < 0 || c >= 9)
+                        continue;  // Skip out-of-bounds columns
+
+                    uint8_t neighborPos = coordsToIndex(r, c);
+
+                    if (neighborPos != index) {
+                        incrementFieldValue(neighborPos);
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Fills the field with mines and numbers based on a seed.
+ * @param seed The seed to use for mine placement.
+ */
+void GameScene::fillGrid() {
+    // Fill the grid with empty fields
+    for (uint8_t i = 0; i < GRID_REGISTER_SIZE; i++) {
+        gridRegister[i] = 0;
+    }
+
+    uint8_t minesPlaced = 0;
+
+    while (minesPlaced < minesCount) {
+        // Generate a random position for mine
+        currentSeed = mutateSeed(currentSeed);
+        uint8_t pos = currentSeed % TOTAL_FIELDS;
+
+        // Get byte index in grid register
+        uint8_t byteIndex = pos / 2;
+
+        // Check if high or low nibble
+        bool isHighNibble = (pos % 2 == 0);
+
+        if (isHighNibble) {
+            // Get the value of the nibble and check if it's already a mine
+            uint8_t isMine = (gridRegister[byteIndex] & 0x90);
+
+            if (isMine == 0) {
+                // Place mine on a given position
+                gridRegister[byteIndex] |= 0x90;
+                minesPlaced++;
+            }
+        } else {
+            // Get the value of the nibble and check if it's already a mine
+            uint8_t isMine = (gridRegister[byteIndex] & 0x09);
+
+            if (isMine == 0) {
+                // Place mine on a given position
+                gridRegister[byteIndex] |= 0x09;
+                minesPlaced++;
+            }
+        }
+    }
+
+    incrementFields();
+}
+
+/**
+ * Get the color of a field based on its value.
+ * @param value The value of the field.
+ * @return The color of the field.
+ */
+uint16_t GameScene::getFieldColor(int value) {
+    switch (value) {
+        case 0:
+            return ILI9341_WHITE;
+        case 1:
+            return ILI9341_BLUE;
+        case 2:
+            return ILI9341_GREEN;
+        case 3:
+            return ILI9341_YELLOW;
+        case 4:
+            return ILI9341_PINK;
+        case 5:
+            return ILI9341_ORANGE;
+        case 6:
+            return ILI9341_PURPLE;
+        case 7:
+            return ILI9341_CYAN;
+        case 8:
+            return ILI9341_LIGHTGREY;
+        case 9:
+            return ILI9341_DARKGREY;
+    }
+
+    return ILI9341_WHITE;
+}
+
+/**
+ * Get the image path of a field based on its value.
+ * @param value The value of the field.
+ * @return The image path of the field.
+ */
+String GameScene::getFieldImage(int value) {
+    if (value == 0) {
+        return "/open.bmp";
+    }
+
+    if (value == 9) {
+        return "/mine.bmp";
+    }
+
+    return "/open_" + String(value) + ".bmp";
+}
+
+/**
+ * Draws an open field on the screen.
+ * @param index The index of the field to draw.
+ * @param value The value of the field to draw.
+ */
+void GameScene::drawOpen(uint8_t index, uint8_t value) {
+    uint8_t x, y;
+    indexToScreenCoords(index, &x, &y);
+
+    if (Screen.hasSDCard()) {
+        String path = getFieldImage(value);
+        Screen.getReader().drawBMP(path.c_str(), tft, x, y);
+        return;
+    }
+
+    uint16_t color = getFieldColor(value);
+    tft.fillRect(x, y, 24, 24, color);
+
+    if (value > 0) {
+        tft.setCursor(x + 10, y + 7);
+        tft.println(String(value));
+    }
+}
+
+/**
+ * Draws a closed field on the screen.
+ * @param index The index of the field to draw.
+ */
+void GameScene::drawClosed(uint8_t index) {
+    uint8_t x, y;
+    indexToScreenCoords(index, &x, &y);
+
+    if (Screen.hasSDCard()) {
+        Screen.getReader().drawBMP("/slot.bmp", tft, x, y);
+        return;
+    } else {
+        tft.fillRect(x, y, 24, 24, ILI9341_LIGHTGREY);
+    }
+}
+
+/**
+ * Redraws a tile at the given index based on its state (open/closed).
+ * @param index The index of the tile to redraw.
+ */
+void GameScene::redrawTile(uint8_t index) {
+    uint8_t isOpen = isFieldOpen(index);
+
+    if (isOpen) {
+        uint8_t value = getFieldValue(index);
+
+        drawOpen(index, value);
+        return;
+    }
+
+    drawClosed(index);
+}
+
+/**
+ * Resets the field to its initial state.
+ */
+void GameScene::resetField() {
+    cursorPosition = TOTAL_FIELDS / 2;
+    fieldsOpened = 0;
+
+    for (uint8_t i = 0; i < FIELD_REGISTER_SIZE; i++) {
+        fieldRegister[i] = 0;
+    }
+
+    fillGrid();
+
+    for (uint8_t i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
+        redrawTile(i);
+    }
+
+    SegmentDisplay.setValue(livesLeft);
+//
+    drawCursor(cursorPosition);
+}
+
+/**
+ * Checks if a field is open.
+ * @param index The index of the field.
+ * @return True if the field is open, false otherwise.
+ */
+bool GameScene::isFieldOpen(uint8_t index) {
+    if (index > TOTAL_FIELDS - 1)
+        return false;
+
+    uint8_t byteIndex = index / 8;
+    uint8_t bitIndex = index % 8;
+
+    return (fieldRegister[byteIndex] & (0x80 >> bitIndex)) != 0;
+}
+
+/**
+     * Converts 2D coordinates to a 1D index.
+     * @param row The row coordinate.
+     * @param col The column coordinate.
+     * @return The 1D index.
+     */
+uint8_t GameScene::coordsToIndex(int8_t row, int8_t col) {
+    return (uint8_t) (row * GRID_SIZE + col);
+}
+
+/**
+     * Opens a field and returns its value.
+     * @param index The index of the field to open.
+     * @return The value of the opened field.
+     */
+uint8_t GameScene::openFieldAndGetValue(uint8_t index) {
+    uint8_t byteIndex = index / 8;
+    uint8_t bitIndex = index % 8;
+
+    // Open the field
+    fieldRegister[byteIndex] |= (0x80 >> bitIndex);
+    fieldsOpened++;
+
+    uint8_t fieldValue = getFieldValue(index);
+
+    drawOpen(index, fieldValue);
+
+    return fieldValue;
 }
 
 /**
@@ -80,7 +449,7 @@ void GameScene::incrementFieldValue(uint8_t index) {
  * Opens all empty neighboring fields around a given index.
  * @param index The index of the field to check neighbors for.
  */
-void openEmptyNeighbors(uint8_t index) {
+void GameScene::openEmptyNeighbors(uint8_t index) {
     if (index > TOTAL_FIELDS - 1)
         return;
 
@@ -127,7 +496,64 @@ void openEmptyNeighbors(uint8_t index) {
     }
 }
 
+/**
+ * Moves the cursor to a new index.
+ * @param index The index to move the cursor to.
+ */
+void GameScene::moveCursorTo(uint8_t index) {
+    if (index < 0 || index > 80)
+        return;
+
+    redrawTile(cursorPosition);
+    drawCursor(index);
+
+    cursorPosition = index;
+}
 
 void GameScene::onSecondaryPress() {
     SceneManager.switchScene(new MainMenuScene());
+}
+
+/**
+ * Moves the cursor left.
+ */
+void GameScene::moveLeft() {
+    if (cursorPosition % GRID_SIZE == 0) {
+        return;
+    }
+
+    moveCursorTo(cursorPosition - 1);
+}
+
+/**
+ * Moves the cursor right.
+ */
+void GameScene::moveRight() {
+    if (cursorPosition % GRID_SIZE == GRID_SIZE - 1) {
+        return;
+    }
+
+    moveCursorTo(cursorPosition + 1);
+}
+
+/**
+ * Moves the cursor up.
+ */
+void GameScene::moveUp() {
+    if (cursorPosition / GRID_SIZE == 0) {
+        return;
+    }
+
+    moveCursorTo(cursorPosition - GRID_SIZE);
+}
+
+/**
+ * Moves the cursor down.
+ */
+void GameScene::moveDown() {
+    if (cursorPosition / GRID_SIZE == GRID_SIZE - 1) {
+        return;
+    }
+
+    moveCursorTo(cursorPosition + GRID_SIZE);
 }
