@@ -6,6 +6,7 @@
 #include "MPHostMenuScene.h"
 #include "GameScene.h"
 #include <Minenet.h>
+#include "game/Minesweeper.h"
 
 void MPMenuScene::onBegin() {
     tft.setCursor(0, 0);
@@ -37,7 +38,7 @@ void MPMenuScene::onTick() {
         MinenetPacket packet = Minenet.read();
 
         if (packet.opCode == 0x01) {
-            SceneManager.switchScene(new GameScene());
+            SceneManager.switchScene(new GameScene(Minesweeper::random));
         }
     }
 }

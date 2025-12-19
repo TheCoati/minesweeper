@@ -1,7 +1,7 @@
 #include "Minesweeper.h"
 #include "game/scenes/MainMenuScene.h"
 
-//uint8_t Minesweeper::random = 0;
+uint8_t Minesweeper::random = 0;
 
 void Minesweeper::onBegin() {
     Screen.begin();
@@ -9,7 +9,5 @@ void Minesweeper::onBegin() {
 }
 
 void Minesweeper::onTick() {
-//    Minesweeper::random++;
+    Minesweeper::random++;
 }
-
-
