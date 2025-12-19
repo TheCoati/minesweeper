@@ -41,9 +41,11 @@ void MainMenuScene::onDestroy() {
  */
 
 void MainMenuScene::onPrimaryPress() {
+    SceneManager.unloadScene();
     SceneManager.switchScene(new GameScene(Minesweeper::random));
 }
 
 void MainMenuScene::onSecondaryPress() {
+    SceneManager.unloadScene();
     SceneManager.switchScene(new MPMenuScene());
 }

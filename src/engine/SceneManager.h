@@ -9,6 +9,7 @@ public:
      ~SceneManager();
 
     void tick();
+    void unloadScene();
     void switchScene(Scene *newScene);
 private:
     Scene *currentScene = nullptr;

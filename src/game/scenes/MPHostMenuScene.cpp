@@ -40,5 +40,6 @@ void MPHostMenuScene::onDestroy() {
  */
 
 void MPHostMenuScene::onSecondaryPress() {
+    SceneManager.unloadScene();
     SceneManager.switchScene(new MainMenuScene());
 }

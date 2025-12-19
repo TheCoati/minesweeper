@@ -35,6 +35,10 @@ private:
     uint8_t clientId = 0;
     uint8_t ackOpCode = 0;
 
+    uint8_t neightbourQueue[TOTAL_FIELDS];
+    uint8_t neightbourHead = 0;
+    uint8_t neightbourTail = 0;
+
     inline uint8_t mutateSeed(uint8_t seed);
     inline uint8_t coordsToIndex(int8_t row, int8_t col);
     inline void indexToCoords(uint8_t index, int8_t *row, int8_t *col);

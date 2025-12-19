@@ -1,13 +1,7 @@
 #include "SceneManager.h"
 
 SceneManager::~SceneManager() {
-    if (currentScene) {
-        currentScene->destroy();
-
-        delete currentScene;
-
-        currentScene = nullptr;
-    }
+    unloadScene();
 }
 
 void SceneManager::tick() {
@@ -21,18 +15,22 @@ void SceneManager::switchScene(Scene *newScene) {
         return;
     }
 
+    unloadScene(); // Make sure current scene is unloaded
+
+    this->currentScene = newScene;
+
+    if (this->currentScene != nullptr) {
+        this->currentScene->begin();
+    }
+}
+
+void SceneManager::unloadScene() {
     if (this->currentScene != nullptr) {
         this->currentScene->destroy();
 
         delete this->currentScene;
 
         this->currentScene = nullptr;
-    }
-
-    this->currentScene = newScene;
-
-    if (this->currentScene != nullptr) {
-        this->currentScene->begin();
     }
 }
 

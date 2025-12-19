@@ -52,9 +52,11 @@ void MPMenuScene::onDestroy() {
  */
 
 void MPMenuScene::onPrimaryPress() {
+    SceneManager.unloadScene();
     SceneManager.switchScene(new MPHostMenuScene());
 }
 
 void MPMenuScene::onSecondaryPress() {
+    SceneManager.unloadScene();
     SceneManager.switchScene(new MainMenuScene());
 }

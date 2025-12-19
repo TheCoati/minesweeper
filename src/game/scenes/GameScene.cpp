@@ -62,7 +62,7 @@ void GameScene::onDestroy() {
  * @param seed The current seed.
  * @return The mutated seed.
  */
-uint8_t GameScene::mutateSeed(uint8_t seed) {
+inline uint8_t GameScene::mutateSeed(uint8_t seed) {
     seed = (seed * 13) + 7;
 
     return seed;
@@ -74,7 +74,7 @@ uint8_t GameScene::mutateSeed(uint8_t seed) {
  * @param row The row coordinate.
  * @param col The column coordinate.
  */
-void GameScene::indexToCoords(uint8_t index, int8_t *row, int8_t *col) {
+inline void GameScene::indexToCoords(uint8_t index, int8_t *row, int8_t *col) {
     *row = index / GRID_SIZE;
     *col = index % GRID_SIZE;
 }
@@ -85,33 +85,33 @@ void GameScene::indexToCoords(uint8_t index, int8_t *row, int8_t *col) {
  * @param col The column coordinate.
  * @return The 1D index.
  */
-uint8_t GameScene::coordsToIndex(int8_t row, int8_t col) {
+inline uint8_t GameScene::coordsToIndex(int8_t row, int8_t col) {
     return (uint8_t) (row * GRID_SIZE + col);
 }
 
 /**
  * Converts a 1D index to 2D on screen coordinates.
  * @param index The 1D index.
- * @param x T
+ * @param x
  * @param y
  */
-void GameScene::indexToScreenCoords(uint8_t index, uint8_t *row, uint8_t *col) {
-    *row = index / GRID_SIZE;
-    *col = index % GRID_SIZE;
+inline void GameScene::indexToScreenCoords(uint8_t index, uint8_t *x, uint8_t *y) {
+    *x = index % GRID_SIZE;
+    *y = index / GRID_SIZE;
 
     if (Screen.hasSDCard()) {
-        *row *= GRID_COL_SIZE;
-        *col *= GRID_COL_SIZE;
+        *x *= GRID_COL_SIZE;
+        *y *= GRID_COL_SIZE;
 
-        *row += GRID_BORDER_PADDING;
-        *col += GRID_BORDER_PADDING;
+        *x += GRID_BORDER_PADDING;
+        *y += GRID_BORDER_PADDING;
     } else {
         //
         // BEGIN: DEV MODE ONLY
         //
 
-        *row *= GRID_COL_SIZE + 1;
-        *col *= GRID_COL_SIZE + 1;
+        *x *= GRID_COL_SIZE + 1;
+        *y *= GRID_COL_SIZE + 1;
 
         //
         // END: DEV MOD ONLY
@@ -166,9 +166,10 @@ uint8_t GameScene::getFieldValue(uint8_t index) {
     if (index > TOTAL_FIELDS - 1)
         return 255;
 
-    bool isHighNibble = (index % 2 == 0);
+    bool isHighNibble = ((index & 1) == 0);
+    uint8_t byte = gridRegister[index >> 1];
 
-    return (isHighNibble) ? (gridRegister[index / 2] & 0xF0) >> 4 : gridRegister[index / 2] & 0x0F;
+    return isHighNibble ? ((byte >> 4) & 0x0F) : (byte & 0x0F);
 }
 
 /**
@@ -233,6 +234,7 @@ void GameScene::openField(uint8_t index) {
         if (livesLeft == 0) {
             // Game over - no more lives left
             _delay_ms(1000);  // Intentional blocking
+            SceneManager.unloadScene();
             SceneManager.switchScene(new MainMenuScene()); // Todo: Game over scene?
             return;
         }
@@ -259,17 +261,23 @@ void GameScene::openEmptyNeighbors(uint8_t index) {
     if (index > TOTAL_FIELDS - 1)
         return;
 
-    // Queue to hold field indices to visit
-    uint8_t queue[TOTAL_FIELDS];
-    uint8_t queueStart = 0;
-    uint8_t queueEnd = 0;
+    neightbourHead = 0;
+    neightbourTail = 0;
 
     // Add the initial field to the queue
-    queue[queueEnd++] = index;
+    neightbourQueue[neightbourTail++] = index;
 
-    while (queueStart != queueEnd) {
+    if (neightbourTail == TOTAL_FIELDS) {
+        neightbourTail = 0;
+    }
+
+    while (neightbourHead != neightbourTail) {
         // Dequeue a field index.
-        uint8_t currentIndex = queue[queueStart++];
+        uint8_t currentIndex = neightbourQueue[neightbourHead++];
+
+        if (neightbourHead == TOTAL_FIELDS) {
+            neightbourHead = 0;
+        }
 
         // Get coordinates for the current field
         int8_t row, col;
@@ -295,7 +303,18 @@ void GameScene::openEmptyNeighbors(uint8_t index) {
 
                 // If the neighbor is also empty, add it to the queue to process its neighbors
                 if (neighborValue == 0) {
-                    queue[queueEnd++] = neighborIndex;
+                    uint8_t nextTail = neightbourTail + 1;
+
+                    if (nextTail == TOTAL_FIELDS) {
+                        nextTail = 0;
+                    }
+
+                    if (nextTail == neightbourHead) {
+                        continue;
+                    }
+
+                    neightbourQueue[neightbourTail] = neighborIndex;
+                    neightbourTail = nextTail;
                 }
             }
         }
@@ -636,5 +655,6 @@ void GameScene::moveDown() {
  * Returns from the game back to the main menu.
  */
 void GameScene::onSecondaryPress() {
+    SceneManager.unloadScene();
     SceneManager.switchScene(new MainMenuScene());
 }
