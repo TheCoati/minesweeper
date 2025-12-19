@@ -14,8 +14,15 @@ protected:
     void onTick() override;
     void onDestroy() override;
 private:
-    void onPrimaryPress();
-    static void onSecondaryPress();
+    uint8_t selected = 0;
+
+    static const char* getButtonImage(uint8_t index);
+    static void drawButton(uint8_t index);
+    static void drawCursor(uint8_t index);
+
+    void onPrimaryPress() const;
+    void moveUp();
+    void moveDown();
 };
 
 #endif //MINESWEEPER_MAIN_MENU_SCENE_H

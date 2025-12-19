@@ -1,22 +1,21 @@
 #include "GameScene.h"
 
+#include <config.h>
+
 #include "MainMenuScene.h"
-
-// Uncomment to allow running without an SD card (debugging)
-// #define ALLOW_NO_SD_CARD 1
-
-#define GRID_MARGIN 5
-#define GRID_BORDER_PADDING 4
-#define GRID_COL_SIZE 24
-#define CURSOR_WIDTH 3
-#define CURSOR_COLOR ILI9341_BLACK
 
 GameScene::GameScene(uint8_t seed) {
     currentSeed = seed;
 }
 
 void GameScene::onBegin() {
-    drawField();
+    tft.setCursor(0, 0);
+    tft.fillScreen(MENU_BACKGROUND_COLOR);
+
+    if (Screen.hasSDCard()) {
+        Screen.getReader().drawBMP("/grid.bmp", tft, GRID_MARGIN, GRID_MARGIN);
+    }
+
     resetField();
 }
 
@@ -573,18 +572,6 @@ void GameScene::drawClosed(uint8_t index) {
     #endif
 }
 
-
-/**
- * Draws the entire field on the screen at the beginning of the game.
- */
-void GameScene::drawField() {
-    tft.fillScreen(ILI9341_WHITE);
-
-    if (Screen.hasSDCard()) {
-        Screen.getReader().drawBMP("/outline.bmp", tft, GRID_MARGIN, GRID_MARGIN);
-    }
-}
-
 /**
  * Draws the cursor on the screen.
  * @param index The index of the cursor to draw.
@@ -594,10 +581,10 @@ void GameScene::drawCursor(uint8_t index) {
     indexToScreenCoords(index, &x, &y);
 
     // Draw the cursor with individual rectangles
-    tft.fillRect(x, y, GRID_COL_SIZE, CURSOR_WIDTH, CURSOR_COLOR);
-    tft.fillRect(x, y + (GRID_COL_SIZE - CURSOR_WIDTH), GRID_COL_SIZE, CURSOR_WIDTH, CURSOR_COLOR);
-    tft.fillRect(x, y, CURSOR_WIDTH, GRID_COL_SIZE, CURSOR_COLOR);
-    tft.fillRect(x + (GRID_COL_SIZE - CURSOR_WIDTH), y, CURSOR_WIDTH, GRID_COL_SIZE, CURSOR_COLOR);
+    tft.fillRect(x, y, GRID_COL_SIZE, GRID_CURSOR_WIDTH, GRID_CURSOR_COLOR);
+    tft.fillRect(x, y + (GRID_COL_SIZE - GRID_CURSOR_WIDTH), GRID_COL_SIZE, GRID_CURSOR_WIDTH, GRID_CURSOR_COLOR);
+    tft.fillRect(x, y, GRID_CURSOR_WIDTH, GRID_COL_SIZE, GRID_CURSOR_COLOR);
+    tft.fillRect(x + (GRID_COL_SIZE - GRID_CURSOR_WIDTH), y, GRID_CURSOR_WIDTH, GRID_COL_SIZE, GRID_CURSOR_COLOR);
 }
 
 /*

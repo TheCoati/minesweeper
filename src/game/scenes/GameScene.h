@@ -17,7 +17,7 @@
 
 class GameScene : public Scene {
 public:
-   GameScene(uint8_t seed);
+   explicit GameScene(uint8_t seed);
 
 protected:
    void onBegin() override;
@@ -25,24 +25,22 @@ protected:
    void onDestroy() override;
 
 private:
-    uint8_t gridRegister[GRID_REGISTER_SIZE];
-    uint8_t fieldRegister[FIELD_REGISTER_SIZE];
+    uint8_t gridRegister[GRID_REGISTER_SIZE]{};
+    uint8_t fieldRegister[FIELD_REGISTER_SIZE]{};
     uint8_t currentSeed = 183;
     uint8_t cursorPosition = 0;
     uint8_t minesCount = 10;
     uint8_t fieldsOpened = 0;
     uint8_t livesLeft = LIVES;
-    uint8_t clientId = 0;
-    uint8_t ackOpCode = 0;
 
-    uint8_t neightbourQueue[TOTAL_FIELDS];
+    uint8_t neightbourQueue[TOTAL_FIELDS]{};
     uint8_t neightbourHead = 0;
     uint8_t neightbourTail = 0;
 
-    inline uint8_t mutateSeed(uint8_t seed);
-    inline uint8_t coordsToIndex(int8_t row, int8_t col);
-    inline void indexToCoords(uint8_t index, int8_t *row, int8_t *col);
-    inline void indexToScreenCoords(uint8_t index, uint8_t *row, uint8_t *col);
+    static inline uint8_t mutateSeed(uint8_t seed);
+    static inline uint8_t coordsToIndex(int8_t row, int8_t col);
+    static inline void indexToCoords(uint8_t index, int8_t *row, int8_t *col);
+    static inline void indexToScreenCoords(uint8_t index, uint8_t *row, uint8_t *col);
     uint8_t openFieldAndGetValue(uint8_t index);
     bool isFieldOpen(uint8_t index);
     uint8_t getFieldValue(uint8_t index);
@@ -57,19 +55,17 @@ private:
     void incrementFields();
     void incrementFieldValue(uint8_t index);
 
-    inline String getFieldImage(uint8_t value);
-    inline uint16_t getFieldColor(uint8_t value);
+    static inline String getFieldImage(uint8_t value);
+    static inline uint16_t getFieldColor(uint8_t value);
     void drawOpen(uint8_t index, uint8_t value);
     void drawClosed(uint8_t index);
-
-    void drawField();
     void drawCursor(uint8_t index);
 
     void moveLeft();
     void moveRight();
     void moveUp();
     void moveDown();
-    void onSecondaryPress();
+    static void onSecondaryPress();
 };
 
 #endif //MINESWEEPER_GAME_SCENE_H

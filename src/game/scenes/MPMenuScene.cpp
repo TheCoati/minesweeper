@@ -1,19 +1,17 @@
 #include "MPMenuScene.h"
 
+#include <config.h>
 #include <Minenet.h>
 
 #include "MainMenuScene.h"
-#include "MPHostMenuScene.h"
 #include "GameScene.h"
 
 void MPMenuScene::onBegin() {
-    tft.setCursor(0, 0);
-    tft.fillScreen(ILI9341_BLACK);
-    tft.setTextColor(ILI9341_WHITE);
+    tft.fillScreen(MENU_BACKGROUND_COLOR);
 
-    tft.println("Multiplayer Menu");
-    tft.println("[Z] - Host game");
-    tft.println("[C] - Exit");
+    Screen.getReader().drawBMP("/mp_info.bmp", tft, 17, 40);
+    Screen.drawButton("btn_cl.bmp", 64, 168);
+    Screen::drawButtonCursor(64, 168);
 }
 
 void MPMenuScene::onTick() {
@@ -22,10 +20,7 @@ void MPMenuScene::onTick() {
 
         switch (action) {
             case PRIMARY:
-                this->onPrimaryPress();
-                break;
-            case SECONDARY:
-                this->onSecondaryPress();
+                onPrimaryPress();
                 break;
             default:
                 break;
@@ -52,11 +47,6 @@ void MPMenuScene::onDestroy() {
  */
 
 void MPMenuScene::onPrimaryPress() {
-    SceneManager.unloadScene();
-    SceneManager.switchScene(new MPHostMenuScene());
-}
-
-void MPMenuScene::onSecondaryPress() {
     SceneManager.unloadScene();
     SceneManager.switchScene(new MainMenuScene());
 }

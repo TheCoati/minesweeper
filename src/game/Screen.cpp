@@ -4,6 +4,8 @@
 #define TFT_DC 9
 #define TFT_CS 10
 
+#include "config.h"
+
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 SdFat SD;
 
@@ -27,12 +29,26 @@ void Screen::begin() {
     tft.setCursor(0, 0);
 }
 
-bool Screen::hasSDCard() {
+bool Screen::hasSDCard() const {
     return sdCard;
 }
 
 Adafruit_ImageReader& Screen::getReader() {
     return reader;
+}
+
+void Screen::drawButton(const char *image, uint8_t x, uint8_t y) {
+    if (hasSDCard()) {
+        getReader().drawBMP(image, tft, x, y);
+    }
+}
+
+void Screen::drawButtonCursor(uint8_t x, uint8_t y) {
+    tft.fillRect(x, y, BUTTON_CURSOR_WIDTH, BUTTON_CURSOR_BORDER, BUTTON_CURSOR_COLOR); // Top
+    tft.fillRect(x, y + (BUTTON_CURSOR_HEIGHT - BUTTON_CURSOR_BORDER), BUTTON_CURSOR_WIDTH, BUTTON_CURSOR_BORDER, BUTTON_CURSOR_COLOR);
+
+    tft.fillRect(x, y, BUTTON_CURSOR_BORDER, BUTTON_CURSOR_HEIGHT, BUTTON_CURSOR_COLOR); // Top border
+    tft.fillRect(x + (BUTTON_CURSOR_WIDTH - BUTTON_CURSOR_BORDER), y, BUTTON_CURSOR_BORDER, BUTTON_CURSOR_HEIGHT, BUTTON_CURSOR_COLOR); // Bottom border
 }
 
 class Screen Screen;
