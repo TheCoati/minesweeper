@@ -6,12 +6,24 @@
 #include "MainMenuScene.h"
 #include "GameScene.h"
 
+#define INFO_BMP_X 17 // 17px
+#define CANCEL_BUTTON_X ((SCREEN_WIDTH - BUTTON_WIDTH) / 2)
+#define CANCEL_BUTTON_Y (SCREEN_HEIGHT - MP_MENU_SCREEN_PADDING - BUTTON_HEIGHT)
+
 void MPMenuScene::onBegin() {
     tft.fillScreen(MENU_BACKGROUND_COLOR);
 
-    Screen.getReader().drawBMP("/mp_info.bmp", tft, 17, 40);
-    Screen.drawButton("btn_cl.bmp", 64, 168);
-    Screen::drawButtonCursor(64, 168);
+    if (Screen.hasSDCard()) {
+        Screen.getReader().drawBMP("/mp_info.bmp", tft, INFO_BMP_X, MP_MENU_SCREEN_PADDING);
+        Screen.drawButton("/btn_cl.bmp", CANCEL_BUTTON_X, CANCEL_BUTTON_Y);
+    }
+    #ifdef ALLOW_NO_SD_CARD
+    else {
+        // TODO
+    }
+    #endif
+
+    Screen::drawButtonCursor(CANCEL_BUTTON_X, CANCEL_BUTTON_Y);
 }
 
 void MPMenuScene::onTick() {

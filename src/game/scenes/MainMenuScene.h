@@ -14,7 +14,12 @@ protected:
     void onTick() override;
     void onDestroy() override;
 private:
-    uint8_t selected = 0;
+    enum MenuButton {
+        SINGLEPLAYER = 0,
+        MULTIPLAYER = 1,
+    };
+
+    MenuButton selected = MenuButton::SINGLEPLAYER;
 
     static const char* getButtonImage(uint8_t index);
     static void drawButton(uint8_t index);

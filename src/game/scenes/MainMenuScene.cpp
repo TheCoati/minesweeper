@@ -5,11 +5,14 @@
 #include "GameScene.h"
 #include "MPMenuScene.h"
 
+#define MAIN_MENU_BUTTON_X ((SCREEN_WIDTH - BUTTON_WIDTH) / 2)
+#define MAIN_MENU_BUTTON_Y(index) (MAIN_MENU_SCREEN_PADDING + index * (BUTTON_HEIGHT + MAIN_MENU_BUTTON_SPACE))
+
 void MainMenuScene::onBegin() {
     tft.fillScreen(MENU_BACKGROUND_COLOR);
 
-    drawButton(0);
-    drawButton(1);
+    drawButton(MenuButton::SINGLEPLAYER);
+    drawButton(MenuButton::MULTIPLAYER);
     drawCursor(selected);
 }
 
@@ -34,7 +37,7 @@ void MainMenuScene::onTick() {
 }
 
 void MainMenuScene::onDestroy() {
-
+    //
 }
 
 /*
@@ -46,25 +49,33 @@ void MainMenuScene::onDestroy() {
 const char* MainMenuScene::getButtonImage(uint8_t index) {
     switch (index) {
         case 0:
-            return "btn_sp.bmp";
+            return "/btn_sp.bmp";
         case 1:
-            return "btn_mp.bmp";
+            return "/btn_mp.bmp";
         default:
             return "";
     }
 }
 
 void MainMenuScene::drawButton(uint8_t index) {
-    uint8_t y = 60 + index * (48 + 24);
+    uint8_t y = MAIN_MENU_BUTTON_Y(index);
 
-    Screen.drawButton(getButtonImage(index), 64, y);
+    if (Screen.hasSDCard()) {
+        const char* imagePath = getButtonImage(index);
+
+        Screen.drawButton(imagePath, MAIN_MENU_BUTTON_X, y);
+    }
+    #ifdef ALLOW_NO_SD_CARD
+    else {
+        // TODO
+    }
+    #endif
 }
 
 void MainMenuScene::drawCursor(uint8_t index) {
-    uint8_t x = 64;
-    uint8_t y = 60 + index * (48 + 24);
+    uint8_t y = MAIN_MENU_BUTTON_Y(index);
 
-    Screen::drawButtonCursor(x, y);
+    Screen::drawButtonCursor(MAIN_MENU_BUTTON_X, y);
 }
 
 /*
@@ -74,23 +85,24 @@ void MainMenuScene::drawCursor(uint8_t index) {
  */
 
 void MainMenuScene::moveUp() {
-    selected = 0;
-    drawButton(1);
-    drawCursor(selected = 0);
+    selected = MenuButton::SINGLEPLAYER;
+
+    drawButton(MenuButton::MULTIPLAYER); //  Redraw
+    drawCursor(selected = MenuButton::SINGLEPLAYER);
 }
 
 void MainMenuScene::moveDown() {
-    drawButton(0);
-    drawCursor(selected = 1);
+    drawButton(MenuButton::SINGLEPLAYER); //  Redraw
+    drawCursor(selected = MenuButton::MULTIPLAYER);
 }
 
 void MainMenuScene::onPrimaryPress() const {
     switch (selected) {
-        case 0:
+        case SINGLEPLAYER:
             SceneManager.unloadScene();
             SceneManager.switchScene(new GameScene(Minesweeper::random));
             break;
-        case 1:
+        case MULTIPLAYER:
             SceneManager.unloadScene();
             SceneManager.switchScene(new MPMenuScene());
             break;
