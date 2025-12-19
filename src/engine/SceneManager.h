@@ -5,10 +5,13 @@
 
 class SceneManager {
 public:
+     SceneManager() = default;
+     ~SceneManager();
+
     void tick();
-    void switchScene(Scene* newScene);
+    void switchScene(Scene *newScene);
 private:
-    Scene* currentScene = nullptr;
+    Scene *currentScene = nullptr;
 };
 
 extern SceneManager SceneManager;

@@ -4,10 +4,6 @@
 #include "engine/SceneManager.h"
 #include "MainMenuScene.h"
 
-GameScene::GameScene(uint8_t seed) {
-    currentSeed = seed;
-}
-
 void GameScene::onBegin() {
     drawField();
     resetField();
@@ -43,6 +39,9 @@ void GameScene::onTick() {
 
 void GameScene::onDestroy() {
     SegmentDisplay.setValue(SegmentDisplay.OFF);
+
+    memset(gridRegister, 0, sizeof(gridRegister));
+    memset(fieldRegister, 0, sizeof(fieldRegister));
 }
 
 /**
@@ -79,6 +78,7 @@ void GameScene::openField(uint8_t index) {
         return;
     }
 
+    // a;
     if (fieldsOpened >= (TOTAL_FIELDS - minesCount))
     {
         _delay_ms(1000);
@@ -188,9 +188,7 @@ void GameScene::incrementFields() {
  */
 void GameScene::fillGrid() {
     // Fill the grid with empty fields
-    for (uint8_t i = 0; i < GRID_REGISTER_SIZE; i++) {
-        gridRegister[i] = 0;
-    }
+    memset(gridRegister, 0, sizeof(gridRegister));
 
     uint8_t minesPlaced = 0;
 
@@ -198,6 +196,11 @@ void GameScene::fillGrid() {
         // Generate a random position for mine
         currentSeed = mutateSeed(currentSeed);
         uint8_t pos = currentSeed % TOTAL_FIELDS;
+
+        tft.setTextColor(ILI9341_BLACK);
+        tft.setCursor(230, 0 + (minesPlaced * 18));
+        tft.println(currentSeed);
+
 
         // Get byte index in grid register
         uint8_t byteIndex = pos / 2;
@@ -234,7 +237,7 @@ void GameScene::fillGrid() {
  * @param value The value of the field.
  * @return The color of the field.
  */
-uint16_t GameScene::getFieldColor(int value) {
+uint16_t GameScene::getFieldColor(uint8_t value) {
     switch (value) {
         case 0:
             return ILI9341_WHITE;
@@ -266,7 +269,7 @@ uint16_t GameScene::getFieldColor(int value) {
  * @param value The value of the field.
  * @return The image path of the field.
  */
-String GameScene::getFieldImage(int value) {
+String GameScene::getFieldImage(uint8_t value) {
     if (value == 0) {
         return "/open.bmp";
     }
@@ -342,9 +345,7 @@ void GameScene::resetField() {
     cursorPosition = TOTAL_FIELDS / 2;
     fieldsOpened = 0;
 
-    for (uint8_t i = 0; i < FIELD_REGISTER_SIZE; i++) {
-        fieldRegister[i] = 0;
-    }
+    memset(fieldRegister, 0, sizeof(fieldRegister));
 
     fillGrid();
 
@@ -353,7 +354,7 @@ void GameScene::resetField() {
     }
 
     SegmentDisplay.setValue(livesLeft);
-//
+
     drawCursor(cursorPosition);
 }
 

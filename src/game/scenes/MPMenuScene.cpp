@@ -3,6 +3,9 @@
 #include "engine/Controller.h"
 #include "engine/SceneManager.h"
 #include "MainMenuScene.h"
+#include "MPHostMenuScene.h"
+#include "GameScene.h"
+#include <Minenet.h>
 
 void MPMenuScene::onBegin() {
     tft.setCursor(0, 0);
@@ -10,6 +13,7 @@ void MPMenuScene::onBegin() {
     tft.setTextColor(ILI9341_WHITE);
 
     tft.println("Multiplayer Menu");
+    tft.println("[Z] - Host game");
     tft.println("[C] - Exit");
 }
 
@@ -18,6 +22,9 @@ void MPMenuScene::onTick() {
         ControllerAction action = Controller.read();
 
         switch (action) {
+            case PRIMARY:
+                this->onPrimaryPress();
+                break;
             case SECONDARY:
                 this->onSecondaryPress();
                 break;
@@ -25,10 +32,22 @@ void MPMenuScene::onTick() {
                 break;
         }
     }
+
+    if (Minenet.available()) {
+        MinenetPacket packet = Minenet.read();
+
+        if (packet.opCode == 0x01) {
+            SceneManager.switchScene(new GameScene());
+        }
+    }
 }
 
 void MPMenuScene::onDestroy() {
 
+}
+
+void MPMenuScene::onPrimaryPress() {
+    SceneManager.switchScene(new MPHostMenuScene());
 }
 
 void MPMenuScene::onSecondaryPress() {

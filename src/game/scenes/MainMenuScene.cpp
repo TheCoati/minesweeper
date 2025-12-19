@@ -4,7 +4,6 @@
 #include "engine/SceneManager.h"
 #include "MPMenuScene.h"
 #include "GameScene.h"
-#include "game/Minesweeper.h"
 
 void MainMenuScene::onBegin() {
     tft.setCursor(0, 0);
@@ -38,7 +37,7 @@ void MainMenuScene::onDestroy() {
 }
 
 void MainMenuScene::onPrimaryPress() {
-    SceneManager.switchScene(new GameScene(0));
+    SceneManager.switchScene(new GameScene());
 }
 
 void MainMenuScene::onSecondaryPress() {

@@ -1,11 +1,12 @@
 #include "Game.h"
-#include "Networking.h"
 #include "Controller.h"
+#include "Timer.h"
+#include <Minenet.h>
 
 void Game::begin() {
-
+    Timer.begin();
+    Minenet.begin();
     Controller.begin();
-//    Networking.begin();
 
     this->onBegin();
 }
@@ -13,7 +14,6 @@ void Game::begin() {
 void Game::tick() {
     SceneManager.tick();
     Controller.tick();
-    Networking.tick();
 
     this->onTick();
 }

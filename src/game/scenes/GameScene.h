@@ -12,8 +12,6 @@
 #define LIVES 2
 
 class GameScene : public Scene {
-public:
-    GameScene(uint8_t seed);
 protected:
     void onBegin() override;
     void onTick() override;
@@ -22,7 +20,7 @@ protected:
 private:
      uint8_t gridRegister[GRID_REGISTER_SIZE];
      uint8_t fieldRegister[FIELD_REGISTER_SIZE];
-     uint8_t currentSeed = 0;
+     uint8_t currentSeed = 183;
      uint8_t cursorPosition = 0;
      uint8_t minesCount = 10;
      uint8_t fieldsOpened = 0;
@@ -31,8 +29,8 @@ private:
      uint8_t ackOpCode = 0;
      void resetField();
      void redrawTile(uint8_t index);
-     uint16_t getFieldColor(int value);
-     String getFieldImage(int value);
+     uint16_t getFieldColor(uint8_t value);
+     String getFieldImage(uint8_t value);
      void openField(uint8_t index);
      void drawOpen(uint8_t index, uint8_t value);
      void drawClosed(uint8_t index);
@@ -44,14 +42,13 @@ private:
      void incrementFieldValue(uint8_t index);
      void incrementFields();
      uint8_t openFieldAndGetValue(uint8_t index);
-     uint8_t coordsToIndex(int8_t row, int8_t col);
-     void indexToCoords(uint8_t index, int8_t *row, int8_t *col);
-     void indexToScreenCoords(uint8_t index, uint8_t *row, uint8_t *col);
-     uint8_t mutateSeed(uint8_t seed);
+     inline uint8_t coordsToIndex(int8_t row, int8_t col);
+     inline void indexToCoords(uint8_t index, int8_t *row, int8_t *col);
+     inline void indexToScreenCoords(uint8_t index, uint8_t *row, uint8_t *col);
+     inline uint8_t mutateSeed(uint8_t seed);
      void openEmptyNeighbors(uint8_t index);
      void onSecondaryPress();
      void moveCursorTo(uint8_t index);
-
      void moveLeft();
      void moveRight();
      void moveUp();
