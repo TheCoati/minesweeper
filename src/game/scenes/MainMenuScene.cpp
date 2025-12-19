@@ -6,7 +6,7 @@
 #include "MPMenuScene.h"
 
 #define MAIN_MENU_BUTTON_X ((SCREEN_WIDTH - BUTTON_WIDTH) / 2)
-#define MAIN_MENU_BUTTON_Y(index) (MAIN_MENU_SCREEN_PADDING + index * (BUTTON_HEIGHT + MAIN_MENU_BUTTON_SPACE))
+#define MAIN_MENU_BUTTON_Y(index) (MAIN_MENU_SCREEN_TOP_PADDING + index * (BUTTON_HEIGHT + MAIN_MENU_BUTTON_SPACE))
 
 void MainMenuScene::onBegin() {
     tft.fillScreen(MENU_BACKGROUND_COLOR);
