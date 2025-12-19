@@ -14,8 +14,6 @@ Screen::Screen(): reader(SD) {
 void Screen::begin() {
     tft.begin();
     tft.setRotation(1);
-    tft.setTextColor(ILI9341_WHITE);
-    tft.fillScreen(ILI9341_BLACK);
 
     sdCard = SD.begin(SD_CS, SD_SCK_MHZ(25));
 
@@ -27,8 +25,6 @@ void Screen::begin() {
     }
 
     tft.setCursor(0, 0);
-    tft.fillScreen(ILI9341_BLACK);
-    tft.setTextColor(ILI9341_WHITE);
 }
 
 bool Screen::hasSDCard() {

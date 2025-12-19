@@ -57,8 +57,8 @@ private:
     void incrementFields();
     void incrementFieldValue(uint8_t index);
 
-    String getFieldImage(uint8_t value);
-    uint16_t getFieldColor(uint8_t value);
+    inline String getFieldImage(uint8_t value);
+    inline uint16_t getFieldColor(uint8_t value);
     void drawOpen(uint8_t index, uint8_t value);
     void drawClosed(uint8_t index);
 

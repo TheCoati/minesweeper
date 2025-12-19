@@ -2,6 +2,10 @@
 
 #include "MainMenuScene.h"
 
+// Uncomment to allow running without an SD card (debugging)
+// #define ALLOW_NO_SD_CARD 1
+
+#define GRID_MARGIN 5
 #define GRID_BORDER_PADDING 4
 #define GRID_COL_SIZE 24
 #define CURSOR_WIDTH 3
@@ -103,20 +107,15 @@ inline void GameScene::indexToScreenCoords(uint8_t index, uint8_t *x, uint8_t *y
         *x *= GRID_COL_SIZE;
         *y *= GRID_COL_SIZE;
 
-        *x += GRID_BORDER_PADDING;
-        *y += GRID_BORDER_PADDING;
-    } else {
-        //
-        // BEGIN: DEV MODE ONLY
-        //
-
-        *x *= GRID_COL_SIZE + 1;
-        *y *= GRID_COL_SIZE + 1;
-
-        //
-        // END: DEV MOD ONLY
-        //
+        *x += (GRID_BORDER_PADDING + GRID_MARGIN);
+        *y += (GRID_BORDER_PADDING + GRID_MARGIN);
     }
+    #ifndef ALLOW_NO_SD_CARD
+    else {
+        *x *= GRID_COL_SIZE + 1; // +1 Grid spacing
+        *y *= GRID_COL_SIZE + 1; // +1 Grid spacing
+    }
+    #endif
 }
 
 /**
@@ -458,17 +457,15 @@ void GameScene::incrementFieldValue(uint8_t index) {
  |--------------------------------------------------------------------------
  */
 
+#ifndef ALLOW_NO_SD_CARD
+
 /**
  * Get the color of a field based on its value.
  * @note This method is only used in dev mode.
  * @param value The value of the field.
  * @return The color of the field.
  */
-uint16_t GameScene::getFieldColor(uint8_t value) {
-    //
-    // BEGIN: DEV MODE ONLY
-    //
-
+inline uint16_t GameScene::getFieldColor(uint8_t value) {
     switch (value) {
         case 0:
             return ILI9341_WHITE;
@@ -493,27 +490,39 @@ uint16_t GameScene::getFieldColor(uint8_t value) {
     }
 
     return ILI9341_WHITE;
-
-    //
-    // END: DEV MOD ONLY
-    //
 }
+
+#endif
 
 /**
  * Get the image path of a field based on its value.
  * @param value The value of the field.
  * @return The image path of the field.
  */
-String GameScene::getFieldImage(uint8_t value) {
-    if (value == 0) {
-        return "/open.bmp";
+inline String GameScene::getFieldImage(uint8_t value) {
+    switch (value) {
+        case 0:
+            return F("/open.bmp");
+        case 1:
+            return F("/open_1.bmp");
+        case 2:
+            return F("/open_2.bmp");
+        case 3:
+            return F("/open_3.bmp");
+        case 4:
+            return F("/open_4.bmp");
+        case 5:
+            return F("/open_5.bmp");
+        case 6:
+            return F("/open_6.bmp");
+        case 7:
+            return F("/open_7.bmp");
+        case 8:
+            return F("/open_8.bmp");
+        default:
+        case 9:
+            return F("/mine.bmp");
     }
-
-    if (value == 9) {
-        return "/mine.bmp";
-    }
-
-    return "/open_" + String(value) + ".bmp";
 }
 
 /**
@@ -531,9 +540,7 @@ void GameScene::drawOpen(uint8_t index, uint8_t value) {
         return;
     }
 
-    //
-    // BEGIN: DEV MODE ONLY
-    //
+    #ifndef ALLOW_NO_SD_CARD
 
     uint16_t color = getFieldColor(value);
     tft.fillRect(x, y, GRID_COL_SIZE, GRID_COL_SIZE, color);
@@ -544,9 +551,7 @@ void GameScene::drawOpen(uint8_t index, uint8_t value) {
         tft.println(String(value));
     }
 
-    //
-    // END: DEV MOD ONLY
-    //
+    #endif
 }
 
 /**
@@ -560,17 +565,12 @@ void GameScene::drawClosed(uint8_t index) {
     if (Screen.hasSDCard()) {
         Screen.getReader().drawBMP("/slot.bmp", tft, x, y);
         return;
-    } else {
-        //
-        // BEGIN: DEV MODE ONLY
-        //
-
-        tft.fillRect(x, y, 24, 24, ILI9341_LIGHTGREY);
-
-        //
-        // END: DEV MOD ONLY
-        //
     }
+    #ifndef ALLOW_NO_SD_CARD
+    else {
+        tft.fillRect(x, y, 24, 24, ILI9341_LIGHTGREY);
+    }
+    #endif
 }
 
 
@@ -581,7 +581,7 @@ void GameScene::drawField() {
     tft.fillScreen(ILI9341_WHITE);
 
     if (Screen.hasSDCard()) {
-        Screen.getReader().drawBMP("/outline.bmp", tft, 0, 0);
+        Screen.getReader().drawBMP("/outline.bmp", tft, GRID_MARGIN, GRID_MARGIN);
     }
 }
 
