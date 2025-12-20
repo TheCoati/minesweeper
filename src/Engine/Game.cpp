@@ -1,7 +1,7 @@
 #include "Game.h"
 
 #include <Minenet.h>
-#include "Timer.h"
+#include "Engine/Timer.h"
 #include "Peripherals/Controller.h"
 
 void Game::begin() {
