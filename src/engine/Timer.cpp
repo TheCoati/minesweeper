@@ -4,38 +4,32 @@
 #include <avr/wdt.h>
 #include <util/atomic.h>
 
-static volatile uint32_t s_millis = 0;
-static constexpr uint8_t WDT_INTERVAL_MS = 16;
+#define WDT_INTERVAL_MS 16
+
+volatile uint32_t Timer::milliseconds = 0;
 
 void Timer::begin() {
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        wdt_reset(); // reset WDT
-        // Enable change of WDTCSR
-        WDTCSR |= (1 << WDCE) | (1 << WDE);
-        // Set WDT to interrupt mode only, prescaler = 16ms (WDP bits = 0)
-        // WDIE = 1, WDE = 0 -> interrupt on timeout only
-        WDTCSR = (1 << WDIE);
+        wdt_reset(); //  Reset WDT to prevent immediate reset
+        WDTCSR |= (1 << WDCE) | (1 << WDE); //  Enable configuration changes
+        WDTCSR = (1 << WDIE); //  Set WDT to interrupt mode with ~16ms interval
     }
-    sei(); // ensure interrupts enabled
-}
 
-void Timer::stop() {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        WDTCSR |= (1 << WDCE) | (1 << WDE);
-        WDTCSR = 0x00;
-    }
+    sei();
 }
 
 uint32_t Timer::millis() {
-    uint32_t m;
+    uint32_t cached;
+
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        m = s_millis;
+        cached = milliseconds;
     }
-    return m;
+
+    return cached;
 }
 
 ISR(WDT_vect) {
-    s_millis += WDT_INTERVAL_MS;
+    Timer::milliseconds += WDT_INTERVAL_MS;
 }
 
 class Timer Timer;

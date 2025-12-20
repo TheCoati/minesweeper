@@ -48,7 +48,7 @@ void GameScene::onTick() {
 }
 
 void GameScene::onDestroy() {
-    SegmentDisplay.setValue(SegmentDisplay.OFF);
+    SegmentDisplay.setValue(DISPLAY_OFF);
 
     memset(gridRegister, 0, sizeof(gridRegister));
     memset(fieldRegister, 0, sizeof(fieldRegister));

@@ -5,9 +5,10 @@
 
 class Timer {
 public:
-    void begin();
-    void stop();
-    uint32_t millis();
+    static volatile uint32_t milliseconds;
+
+    static void begin();
+    static uint32_t millis();
 };
 
 extern Timer Timer;

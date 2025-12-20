@@ -1,10 +1,10 @@
 #include "Screen.h"
 
+#include <config.h>
+
 #define SD_CS 4
 #define TFT_DC 9
 #define TFT_CS 10
-
-#include "config.h"
 
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 SdFat SD;
