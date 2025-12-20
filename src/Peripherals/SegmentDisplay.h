@@ -1,7 +1,7 @@
 #ifndef MINESWEEPER_SEGMENTDISPLAY_H
 #define MINESWEEPER_SEGMENTDISPLAY_H
 
-#include "Wire.h"
+#include <Wire.h>
 
 #define DISPLAY_OFF 10
 

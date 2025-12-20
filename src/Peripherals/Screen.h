@@ -3,7 +3,7 @@
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_ILI9341.h>
-#include <Adafruit_Imagereader.h>
+#include <Adafruit_ImageReader.h>
 
 extern Adafruit_ILI9341 tft;
 

@@ -2,9 +2,8 @@
 
 #include <config.h>
 #include <Minenet.h>
-
-#include "MainMenuScene.h"
-#include "GameScene.h"
+#include "Game/Scenes/GameScene.h"
+#include "Game/Scenes/MainMenuScene.h"
 
 #define INFO_BMP_X 17 // 17px
 #define CANCEL_BUTTON_X ((SCREEN_WIDTH - BUTTON_WIDTH) / 2)

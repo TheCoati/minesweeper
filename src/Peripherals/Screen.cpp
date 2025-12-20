@@ -43,6 +43,7 @@ void Screen::drawButton(const char *image, uint8_t x, uint8_t y) {
     }
 }
 
+// Todo: Move to game specific helper?
 void Screen::drawButtonCursor(uint8_t x, uint8_t y) {
     tft.fillRect(x, y, BUTTON_CURSOR_WIDTH, BUTTON_CURSOR_BORDER, BUTTON_CURSOR_COLOR); // Top
     tft.fillRect(x, y + (BUTTON_CURSOR_HEIGHT - BUTTON_CURSOR_BORDER), BUTTON_CURSOR_WIDTH, BUTTON_CURSOR_BORDER, BUTTON_CURSOR_COLOR);

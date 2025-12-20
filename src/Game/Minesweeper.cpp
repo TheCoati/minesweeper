@@ -1,5 +1,6 @@
 #include "Minesweeper.h"
-#include "game/scenes/MainMenuScene.h"
+
+#include "Game/Scenes/MainMenuScene.h"
 
 uint8_t Minesweeper::random = 0;
 

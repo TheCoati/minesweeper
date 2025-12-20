@@ -1,12 +1,11 @@
 #ifndef MINESWEEPER_MP_MENU_SCENE_H
 #define MINESWEEPER_MP_MENU_SCENE_H
 
-#include "engine/Controller.h"
-#include "engine/Scene.h"
-#include "engine/SceneManager.h"
-
-#include "game/Minesweeper.h"
-#include "game/Screen.h"
+#include "Engine/Scene.h"
+#include "Engine/SceneManager.h"
+#include "Game/Minesweeper.h"
+#include "Peripherals/Controller.h"
+#include "Peripherals/Screen.h"
 
 class MPMenuScene : public Scene {
 protected:

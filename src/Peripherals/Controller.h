@@ -1,8 +1,7 @@
-#include <string.h>
-#include <Nunchuk.h>
-
 #ifndef MINESWEEPER_CONTROLLER_H
 #define MINESWEEPER_CONTROLLER_H
+
+#include <Nunchuk.h>
 
 enum ControllerAction {
     IDLE = 0,

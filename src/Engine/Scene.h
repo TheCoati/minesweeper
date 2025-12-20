@@ -2,6 +2,7 @@
 #define MINESWEEPER_SCENE_H
 
 #include <stdint.h>
+
 class Scene {
 public:
     Scene() = default;

@@ -1,9 +1,8 @@
 #include "MainMenuScene.h"
 
 #include <config.h>
-
-#include "GameScene.h"
-#include "MPMenuScene.h"
+#include "Game/Scenes/GameScene.h"
+#include "Game/Scenes/MPMenuScene.h"
 
 #define MAIN_MENU_BUTTON_X ((SCREEN_WIDTH - BUTTON_WIDTH) / 2)
 #define MAIN_MENU_BUTTON_Y(index) (MAIN_MENU_SCREEN_TOP_PADDING + index * (BUTTON_HEIGHT + MAIN_MENU_BUTTON_SPACE))

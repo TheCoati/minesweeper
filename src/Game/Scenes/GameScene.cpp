@@ -1,8 +1,7 @@
 #include "GameScene.h"
 
 #include <config.h>
-
-#include "MainMenuScene.h"
+#include "Game/Scenes/MainMenuScene.h"
 
 GameScene::GameScene(uint8_t seed) {
     currentSeed = seed;

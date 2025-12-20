@@ -1,6 +1,6 @@
+#include <Arduino.h>
 #include <Wire.h>
-#include "Arduino.h"
-#include "game/Minesweeper.h"
+#include "Game/Minesweeper.h"
 
 class Minesweeper Game;
 

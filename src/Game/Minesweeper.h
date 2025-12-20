@@ -1,8 +1,8 @@
 #ifndef MINESWEEPER_MINESWEEPER_H
 #define MINESWEEPER_MINESWEEPER_H
 
-#include "engine/Game.h"
-#include "game/SegmentDisplay.h"
+#include "Engine/Game.h"
+#include "Peripherals/SegmentDisplay.h"
 
 class Minesweeper : public Game {
 public:

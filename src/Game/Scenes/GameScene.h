@@ -1,13 +1,12 @@
 #ifndef MINESWEEPER_GAME_SCENE_H
 #define MINESWEEPER_GAME_SCENE_H
 
-#include "engine/Controller.h"
-#include "engine/Scene.h"
-#include "engine/SceneManager.h"
-
-#include "game/Minesweeper.h"
-#include "game/Screen.h"
-#include "game/SegmentDisplay.h"
+#include "Engine/Scene.h"
+#include "Engine/SceneManager.h"
+#include "Game/Minesweeper.h"
+#include "Peripherals/Controller.h"
+#include "Peripherals/Screen.h"
+#include "Peripherals/SegmentDisplay.h"
 
 #define GRID_SIZE 9
 #define TOTAL_FIELDS (GRID_SIZE * GRID_SIZE)

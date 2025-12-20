@@ -1,7 +1,7 @@
 #ifndef MINESWEEPER_GAME_H
 #define MINESWEEPER_GAME_H
 
-#include "SceneManager.h"
+#include "Engine/SceneManager.h"
 
 class Game {
 public:
