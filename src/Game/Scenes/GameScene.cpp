@@ -8,7 +8,7 @@ GameScene::GameScene(uint8_t seed, bool multiplayer, uint8_t clientId) {
     this->currentSeed = seed;
     this->multiplayer = multiplayer;
     this->clientId = clientId;
-    this->hasTurn = multiplayer && clientId == 0x01;
+    this->hasTurn = !multiplayer || (clientId == 0x01);
 }
 
 void GameScene::onBegin() {
@@ -17,10 +17,6 @@ void GameScene::onBegin() {
 
     if (Screen.hasSDCard()) {
         Screen.getReader().drawBMP("/grid.bmp", tft, GRID_MARGIN, GRID_MARGIN);
-    }
-
-    if (multiplayer) {
-        Minenet.send(clientId, 0x00, 0x02, currentSeed);
     }
 
     resetField();

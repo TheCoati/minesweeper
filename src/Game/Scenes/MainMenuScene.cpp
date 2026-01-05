@@ -1,6 +1,7 @@
 #include "MainMenuScene.h"
 
 #include <config.h>
+#include <Minenet.h>
 #include "Game/Scenes/GameScene.h"
 #include "Game/Scenes/MPMenuScene.h"
 
@@ -32,6 +33,10 @@ void MainMenuScene::onTick() {
             default:
                 break;
         }
+    }
+
+    if (Minenet.available()) {
+        // Clear Minenet buffer
     }
 }
 
