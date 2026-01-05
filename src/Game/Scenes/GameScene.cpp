@@ -52,7 +52,7 @@ void GameScene::onTick() {
                 break;
         }
     }
-    
+
     if (multiplayer && Minenet.available()) {
         MinenetPacket packet = Minenet.read();
 
@@ -65,8 +65,8 @@ void GameScene::onTick() {
                 moveCursorTo(packet.payload);
                 break;
             case 0x04: // Open field
-                hasTurn = true;
                 openField(packet.payload);
+                hasTurn = true;
                 break;
         }
     }
@@ -231,7 +231,7 @@ void GameScene::moveCursorTo(uint8_t index) {
 
     cursorPosition = index;
 
-    if (multiplayer) {
+    if (multiplayer && hasTurn) {
         Minenet.send(clientId, 0x00, 0x03, index);
     }
 }
@@ -273,7 +273,7 @@ void GameScene::openField(uint8_t index) {
         return;
     }
 
-    if (multiplayer) {
+    if (multiplayer && hasTurn) {
         hasTurn = false;
 
         Minenet.send(clientId, 0x00, 0x04, index);
