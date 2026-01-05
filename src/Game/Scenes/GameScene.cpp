@@ -1,6 +1,7 @@
 #include "GameScene.h"
 
 #include <config.h>
+#include <Minenet.h>
 #include "Game/Scenes/MainMenuScene.h"
 
 GameScene::GameScene(uint8_t seed) {
@@ -8,6 +9,8 @@ GameScene::GameScene(uint8_t seed) {
 }
 
 void GameScene::onBegin() {
+    Minenet.send(0x00, 0x00, 0x02, currentSeed);
+
     tft.setCursor(0, 0);
     tft.fillScreen(MENU_BACKGROUND_COLOR);
 
@@ -43,6 +46,11 @@ void GameScene::onTick() {
             default:
                 break;
         }
+    }
+
+    if (Minenet.available()) {
+        MinenetPacket packet = Minenet.read();
+
     }
 }
 

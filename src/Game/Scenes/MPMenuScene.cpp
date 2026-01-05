@@ -50,6 +50,10 @@ void MPMenuScene::onTick() {
         if (packet.opCode == 0x01) {
             SceneManager.switchScene(new GameScene(Minesweeper::random));
         }
+
+        if (packet.opCode == 0x02) {
+            SceneManager.switchScene(new GameScene(packet.payload));
+        }
     }
 }
 
