@@ -27,6 +27,8 @@ void MPMenuScene::onBegin() {
 
 void connect() {
     Minenet.send(0x00, 0x00, 0x01, 0x00);
+
+    _delay_ms(1000);  // Intentional blocking
 }
 
 void MPMenuScene::onTick() {

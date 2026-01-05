@@ -12,15 +12,15 @@ GameScene::GameScene(uint8_t seed, bool multiplayer, uint8_t clientId) {
 }
 
 void GameScene::onBegin() {
+    if (multiplayer && clientId == 0x01) {
+        Minenet.send(clientId, 0x00, 0x02, currentSeed);
+    }
+
     tft.setCursor(0, 0);
     tft.fillScreen(MENU_BACKGROUND_COLOR);
 
     if (Screen.hasSDCard()) {
         Screen.getReader().drawBMP("/grid.bmp", tft, GRID_MARGIN, GRID_MARGIN);
-    }
-
-    if (multiplayer && clientId == 0x01) {
-        Minenet.send(clientId, 0x00, 0x02, currentSeed);
     }
 
     resetField();
@@ -267,12 +267,13 @@ void GameScene::openField(uint8_t index) {
         // Open neighboring fields if the field is empty
         openEmptyNeighbors(index);
     } else if (fieldValue == 9) {
+        revealBombs();
+
         // Hit a mine
         if (livesLeft == 0) {
-            // Game over - no more lives left
-            revealBombs();
             _delay_ms(1000);  // Intentional blocking
 
+            // Game over - no more lives left
             SceneManager.unloadScene();
             SceneManager.switchScene(new MainMenuScene()); // Todo: Game over scene?
             return;

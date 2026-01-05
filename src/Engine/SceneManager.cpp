@@ -15,7 +15,7 @@ void SceneManager::switchScene(Scene *newScene) {
         return;
     }
 
-    unloadScene(); // Make sure current scene is unloaded
+    unloadScene(); // Make sure the current scene is unloaded
 
     currentScene = newScene;
 
