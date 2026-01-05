@@ -8,7 +8,7 @@ GameScene::GameScene(uint8_t seed, bool multiplayer, uint8_t clientId) {
     this->currentSeed = seed;
     this->multiplayer = multiplayer;
     this->clientId = clientId;
-    this->hasTurn = clientId == 0x01;
+    this->hasTurn = multiplayer && clientId == 0x01;
 }
 
 void GameScene::onBegin() {
@@ -226,14 +226,14 @@ void GameScene::moveCursorTo(uint8_t index) {
     if (index < 0 || index > 80)
         return;
 
+    if (multiplayer && hasTurn) {
+        Minenet.send(clientId, 0x00, 0x03, index);
+    }
+
     redrawTile(cursorPosition);
     drawCursor(index);
 
     cursorPosition = index;
-
-    if (multiplayer && hasTurn) {
-        Minenet.send(clientId, 0x00, 0x03, index);
-    }
 }
 
 /**
@@ -251,6 +251,12 @@ void GameScene::openField(uint8_t index) {
 
     // Draw cursor over opened field
     drawCursor(index);
+
+    if (multiplayer && hasTurn) {
+        hasTurn = false;
+
+        Minenet.send(clientId, 0x00, 0x04, index);
+    }
 
     if (fieldValue == 0) {
         // Hit an empty field
@@ -271,12 +277,6 @@ void GameScene::openField(uint8_t index) {
         _delay_ms(1000);  // Intentional blocking
         resetField();
         return;
-    }
-
-    if (multiplayer && hasTurn) {
-        hasTurn = false;
-
-        Minenet.send(clientId, 0x00, 0x04, index);
     }
 
     if (fieldsOpened >= (TOTAL_FIELDS - minesCount))
