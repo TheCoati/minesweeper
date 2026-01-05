@@ -4,8 +4,10 @@
 #include <Minenet.h>
 #include "Game/Scenes/MainMenuScene.h"
 
-GameScene::GameScene(uint8_t seed) {
-    currentSeed = seed;
+GameScene::GameScene(uint8_t seed, bool multiplayer, bool hasTurn) {
+    this->currentSeed = seed;
+    this->multiplayer = multiplayer;
+    this->hasTurn = hasTurn;
 }
 
 void GameScene::onBegin() {
@@ -22,7 +24,7 @@ void GameScene::onBegin() {
 }
 
 void GameScene::onTick() {
-    if (Controller.available()) {
+    if (Controller.available() && hasTurn) {
         ControllerAction action = Controller.read();
 
         switch (action) {
@@ -48,9 +50,16 @@ void GameScene::onTick() {
         }
     }
 
-    if (Minenet.available()) {
+    if (multiplayer && Minenet.available()) {
         MinenetPacket packet = Minenet.read();
 
+        if (packet.opCode == 0x03) {
+            moveCursorTo(packet.payload);
+        } else if (packet.opCode == 0x04) {
+            hasTurn = true;
+
+            openField(packet.payload);
+        }
     }
 }
 
@@ -208,6 +217,10 @@ void GameScene::moveCursorTo(uint8_t index) {
     if (index < 0 || index > 80)
         return;
 
+    if (multiplayer) {
+        Minenet.send(0x00, 0x00, 0x03, index);
+    }
+
     redrawTile(cursorPosition);
     drawCursor(index);
 
@@ -224,6 +237,12 @@ void GameScene::openField(uint8_t index) {
 
     if (isFieldOpen(index))
         return;
+
+    if (multiplayer) {
+        hasTurn = false;
+
+        Minenet.send(0x00, 0x00, 0x04, index);
+    }
 
     uint8_t fieldValue = openFieldAndGetValue(index);
 

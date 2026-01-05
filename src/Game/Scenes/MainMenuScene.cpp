@@ -99,7 +99,7 @@ void MainMenuScene::onPrimaryPress() const {
     switch (selected) {
         case SINGLEPLAYER:
             SceneManager.unloadScene();
-            SceneManager.switchScene(new GameScene(Minesweeper::random));
+            SceneManager.switchScene(new GameScene(Minesweeper::random, false, true));
             break;
         case MULTIPLAYER:
             SceneManager.unloadScene();

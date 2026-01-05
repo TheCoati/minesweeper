@@ -48,11 +48,11 @@ void MPMenuScene::onTick() {
         MinenetPacket packet = Minenet.read();
 
         if (packet.opCode == 0x01) {
-            SceneManager.switchScene(new GameScene(Minesweeper::random));
+            SceneManager.switchScene(new GameScene(Minesweeper::random, true, false));
         }
 
         if (packet.opCode == 0x02) {
-            SceneManager.switchScene(new GameScene(packet.payload));
+            SceneManager.switchScene(new GameScene(packet.payload, true, true));
         }
     }
 }

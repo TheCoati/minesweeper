@@ -16,7 +16,7 @@
 
 class GameScene : public Scene {
 public:
-   explicit GameScene(uint8_t seed);
+   explicit GameScene(uint8_t seed, bool multiplayer, bool hasTurn);
 
 protected:
    void onBegin() override;
@@ -26,7 +26,6 @@ protected:
 private:
     uint8_t gridRegister[GRID_REGISTER_SIZE]{};
     uint8_t fieldRegister[FIELD_REGISTER_SIZE]{};
-    uint8_t currentSeed = 183;
     uint8_t cursorPosition = 0;
     uint8_t minesCount = 10;
     uint8_t fieldsOpened = 0;
@@ -35,6 +34,10 @@ private:
     uint8_t neightbourQueue[TOTAL_FIELDS]{};
     uint8_t neightbourHead = 0;
     uint8_t neightbourTail = 0;
+
+    uint8_t currentSeed = 183;
+    bool multiplayer = false;
+    bool hasTurn = true;
 
     static inline uint8_t mutateSeed(uint8_t seed);
     static inline uint8_t coordsToIndex(int8_t row, int8_t col);
