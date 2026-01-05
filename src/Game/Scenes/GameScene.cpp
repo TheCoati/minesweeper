@@ -19,6 +19,10 @@ void GameScene::onBegin() {
         Screen.getReader().drawBMP("/grid.bmp", tft, GRID_MARGIN, GRID_MARGIN);
     }
 
+    if (multiplayer && clientId == 0x01) {
+        Minenet.send(clientId, 0x00, 0x02, currentSeed);
+    }
+
     resetField();
 }
 
@@ -52,9 +56,9 @@ void GameScene::onTick() {
     if (multiplayer && Minenet.available()) {
         MinenetPacket packet = Minenet.read();
 
-        if (packet.clientId == clientId) {
-            return;
-        }
+//        if (packet.clientId == clientId) {
+//            return;
+//        }
 
         switch (packet.opCode) {
             case 0x03: // Move cursor
