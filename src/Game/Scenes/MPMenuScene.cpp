@@ -25,6 +25,10 @@ void MPMenuScene::onBegin() {
     Screen::drawButtonCursor(CANCEL_BUTTON_X, CANCEL_BUTTON_Y);
 }
 
+void connect() {
+    Minenet.send(0x00, 0x00, 0x01, 0x00);
+}
+
 void MPMenuScene::onTick() {
     if (Controller.available()) {
         ControllerAction action = Controller.read();
@@ -33,6 +37,8 @@ void MPMenuScene::onTick() {
             case PRIMARY:
                 onPrimaryPress();
                 break;
+            case SECONDARY:
+                connect();
             default:
                 break;
         }
@@ -61,3 +67,5 @@ void MPMenuScene::onPrimaryPress() {
     SceneManager.unloadScene();
     SceneManager.switchScene(new MainMenuScene());
 }
+
+
