@@ -4,15 +4,14 @@
 #include <Minenet.h>
 #include "Game/Scenes/MainMenuScene.h"
 
-GameScene::GameScene(uint8_t seed, bool multiplayer, bool hasTurn) {
+GameScene::GameScene(uint8_t seed, bool multiplayer, uint8_t clientId) {
     this->currentSeed = seed;
     this->multiplayer = multiplayer;
-    this->hasTurn = hasTurn;
+    this->clientId = clientId;
+    this->hasTurn = clientId == 0x01;
 }
 
 void GameScene::onBegin() {
-    Minenet.send(0x00, 0x00, 0x02, currentSeed);
-
     tft.setCursor(0, 0);
     tft.fillScreen(MENU_BACKGROUND_COLOR);
 
@@ -20,11 +19,15 @@ void GameScene::onBegin() {
         Screen.getReader().drawBMP("/grid.bmp", tft, GRID_MARGIN, GRID_MARGIN);
     }
 
+    if (multiplayer) {
+        Minenet.send(clientId, 0x00, 0x02, currentSeed);
+    }
+
     resetField();
 }
 
 void GameScene::onTick() {
-    if (Controller.available() && hasTurn) {
+    if (hasTurn && Controller.available())  {
         ControllerAction action = Controller.read();
 
         switch (action) {
@@ -49,16 +52,22 @@ void GameScene::onTick() {
                 break;
         }
     }
-
+    
     if (multiplayer && Minenet.available()) {
         MinenetPacket packet = Minenet.read();
 
-        if (packet.opCode == 0x03) {
-            moveCursorTo(packet.payload);
-        } else if (packet.opCode == 0x04) {
-            hasTurn = true;
+        if (packet.clientId == clientId) {
+            return;
+        }
 
-            openField(packet.payload);
+        switch (packet.opCode) {
+            case 0x03: // Move cursor
+                moveCursorTo(packet.payload);
+                break;
+            case 0x04: // Open field
+                hasTurn = true;
+                openField(packet.payload);
+                break;
         }
     }
 }
@@ -217,14 +226,14 @@ void GameScene::moveCursorTo(uint8_t index) {
     if (index < 0 || index > 80)
         return;
 
-    if (multiplayer) {
-        Minenet.send(0x00, 0x00, 0x03, index);
-    }
-
     redrawTile(cursorPosition);
     drawCursor(index);
 
     cursorPosition = index;
+
+    if (multiplayer) {
+        Minenet.send(clientId, 0x00, 0x03, index);
+    }
 }
 
 /**
@@ -237,12 +246,6 @@ void GameScene::openField(uint8_t index) {
 
     if (isFieldOpen(index))
         return;
-
-    if (multiplayer) {
-        hasTurn = false;
-
-        Minenet.send(0x00, 0x00, 0x04, index);
-    }
 
     uint8_t fieldValue = openFieldAndGetValue(index);
 
@@ -268,6 +271,12 @@ void GameScene::openField(uint8_t index) {
         _delay_ms(1000);  // Intentional blocking
         resetField();
         return;
+    }
+
+    if (multiplayer) {
+        hasTurn = false;
+
+        Minenet.send(clientId, 0x00, 0x04, index);
     }
 
     if (fieldsOpened >= (TOTAL_FIELDS - minesCount))

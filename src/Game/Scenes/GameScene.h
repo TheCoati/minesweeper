@@ -16,7 +16,7 @@
 
 class GameScene : public Scene {
 public:
-   explicit GameScene(uint8_t seed, bool multiplayer, bool hasTurn);
+   explicit GameScene(uint8_t seed, bool multiplayer, uint8_t clientId);
 
 protected:
    void onBegin() override;
@@ -37,6 +37,7 @@ private:
 
     uint8_t currentSeed = 183;
     bool multiplayer = false;
+    uint8_t clientId = 0x00;
     bool hasTurn = true;
 
     static inline uint8_t mutateSeed(uint8_t seed);
