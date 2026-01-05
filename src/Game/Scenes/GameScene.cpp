@@ -27,7 +27,11 @@ void GameScene::onBegin() {
 }
 
 void GameScene::onTick() {
-    if (hasTurn && Controller.available())  {
+    if (Controller.available())  {
+        if (!hasTurn) {
+            return;
+        }
+
         ControllerAction action = Controller.read();
 
         switch (action) {
