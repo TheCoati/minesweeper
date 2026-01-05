@@ -270,13 +270,17 @@ void GameScene::openField(uint8_t index) {
         // Hit a mine
         if (livesLeft == 0) {
             // Game over - no more lives left
+            revealBombs();
             _delay_ms(1000);  // Intentional blocking
+
             SceneManager.unloadScene();
             SceneManager.switchScene(new MainMenuScene()); // Todo: Game over scene?
             return;
         }
 
         SegmentDisplay.setValue(livesLeft -= 1);
+
+        minesCount += 2;
 
         _delay_ms(1000);  // Intentional blocking
         resetField();
@@ -285,6 +289,7 @@ void GameScene::openField(uint8_t index) {
 
     if (fieldsOpened >= (TOTAL_FIELDS - minesCount))
     {
+        revealBombs();
         _delay_ms(1000);  // Intentional blocking
         resetField();
     }
@@ -376,6 +381,18 @@ void GameScene::resetField() {
     SegmentDisplay.setValue(livesLeft);
 
     drawCursor(cursorPosition);
+}
+
+void GameScene::revealBombs() {
+    for (uint8_t i = 0; i < TOTAL_FIELDS; i++) {
+        bool isHighNibble = i % 2 == 0;
+
+        uint8_t value = (isHighNibble) ? (gridRegister[i / 2] & 0xF0) >> 4 : gridRegister[i / 2] & 0x0F;
+
+        if (value == 9) {
+            drawOpen(i, 9);
+        }
+    }
 }
 
 /*

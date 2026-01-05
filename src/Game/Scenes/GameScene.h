@@ -53,6 +53,7 @@ private:
     void openField(uint8_t index);
     void openEmptyNeighbors(uint8_t index);
     void resetField();
+    void revealBombs();
 
     void fillGrid();
     void incrementFields();
