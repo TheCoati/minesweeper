@@ -137,7 +137,7 @@ MinenetPacket MinenetProtocol::read() {
 }
 
 
-bool MinenetProtocol::available() {
+bool MinenetProtocol:: available() {
     if (rxAvailable) {
         rxAvailable = false;
         return true;

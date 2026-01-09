@@ -15,7 +15,7 @@ struct MinenetPacket {
 };
 
 class MinenetProtocol {
-public:
+   public:
     void begin();
     bool send(uint8_t clientId, uint8_t sessionId, uint8_t op, uint8_t payload);
     MinenetPacket read();
