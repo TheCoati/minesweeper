@@ -1,6 +1,7 @@
 #include "MainMenuScene.h"
 
 #include <config.h>
+#include <Minenet.h>
 #include "Game/Scenes/GameScene.h"
 #include "Game/Scenes/MPMenuScene.h"
 
@@ -32,6 +33,10 @@ void MainMenuScene::onTick() {
             default:
                 break;
         }
+    }
+
+    if (Minenet.available()) {
+        // Clear Minenet buffer
     }
 }
 
@@ -99,7 +104,7 @@ void MainMenuScene::onPrimaryPress() const {
     switch (selected) {
         case SINGLEPLAYER:
             SceneManager.unloadScene();
-            SceneManager.switchScene(new GameScene(Minesweeper::random));
+            SceneManager.switchScene(new GameScene(Minesweeper::random, false, 0x00));
             break;
         case MULTIPLAYER:
             SceneManager.unloadScene();

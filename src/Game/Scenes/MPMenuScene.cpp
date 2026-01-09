@@ -25,6 +25,12 @@ void MPMenuScene::onBegin() {
     Screen::drawButtonCursor(CANCEL_BUTTON_X, CANCEL_BUTTON_Y);
 }
 
+void connect() {
+    Minenet.send(0x00, 0x00, 0x01, 0x00);
+
+    _delay_ms(1000);  // Intentional blocking
+}
+
 void MPMenuScene::onTick() {
     if (Controller.available()) {
         ControllerAction action = Controller.read();
@@ -33,6 +39,8 @@ void MPMenuScene::onTick() {
             case PRIMARY:
                 onPrimaryPress();
                 break;
+            case SECONDARY:
+                connect();
             default:
                 break;
         }
@@ -42,7 +50,11 @@ void MPMenuScene::onTick() {
         MinenetPacket packet = Minenet.read();
 
         if (packet.opCode == 0x01) {
-            SceneManager.switchScene(new GameScene(Minesweeper::random));
+            SceneManager.switchScene(new GameScene(Minesweeper::random, true, 0x01));
+        }
+
+        if (packet.opCode == 0x02) {
+            SceneManager.switchScene(new GameScene(packet.payload, true, 0x02));
         }
     }
 }
@@ -61,3 +73,5 @@ void MPMenuScene::onPrimaryPress() {
     SceneManager.unloadScene();
     SceneManager.switchScene(new MainMenuScene());
 }
+
+
