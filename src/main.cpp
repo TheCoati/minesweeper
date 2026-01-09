@@ -1,35 +1,16 @@
-#include <avr/delay.h>
-#include <NunchuckControl.h>
-#include <SPI.h>
+#include <Arduino.h>
+#include <Wire.h>
+#include "Game/Minesweeper.h"
 
-// PD6 --> led
-// PD2 --> sensor
+class Minesweeper Game;
 
-void InitializeIO()
-{
-  initializeIRIO();
+int main() {
+    init();
 
-  // INT0 falling edge
-  EICRA |= (1 << ISC01);
-  EICRA &= ~(1 << ISC00);
-  EIMSK |= (1 << INT0);
+    Wire.begin();
+    Game.begin();
 
-  sei();
-}
-
-int main(void)
-{
-  InitializeIO();
-  init();
-  Wire.begin();
-  Nunchuk.begin(NUNCHUK_ADDRESS);
-  tft.begin();
-  clearScreen();
-  
-  InitializeIO();
-  while(true)
-  {
-    nunchukControl();
-  }
-  return 0;
+    while (true) {
+        Game.tick();
+    }
 }
